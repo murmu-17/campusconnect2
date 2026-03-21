@@ -1,0 +1,41 @@
+// ================= VALID INSTITUTE EMAIL DOMAINS =================
+const VALID_DOMAINS = [
+  "@students.iitmandi.ac.in", "@iitmandi.ac.in",
+  "@students.iitb.ac.in",    "@iitb.ac.in",
+  "@students.iitd.ac.in",    "@iitd.ac.in",
+  "@students.iitm.ac.in",    "@iitm.ac.in",
+  "@students.iitk.ac.in",    "@iitk.ac.in",
+  "@students.iitkgp.ac.in",  "@iitkgp.ac.in",
+  "@students.iitr.ac.in",    "@iitr.ac.in",
+  "@students.iitg.ac.in",    "@iitg.ac.in",
+  "@students.iith.ac.in",    "@iith.ac.in",
+  "@students.iitp.ac.in",    "@iitp.ac.in",
+  "@students.iitism.ac.in",  "@iitism.ac.in",
+  "@students.iitbhu.ac.in",  "@iitbhu.ac.in",
+  "@students.iitdh.ac.in",   "@iitdh.ac.in",
+  "@students.iitjammu.ac.in","@iitjammu.ac.in",
+  "@students.iitbbs.ac.in",  "@iitbbs.ac.in",
+  "@students.iitgoa.ac.in",  "@iitgoa.ac.in",
+  "@students.iittirupati.ac.in", "@iittirupati.ac.in",
+  "@students.iitdharwad.ac.in",  "@iitdharwad.ac.in",
+  "@students.iitpalakkad.ac.in", "@iitpalakkad.ac.in",
+  "@nitk.edu.in",            "@nitk.ac.in",
+  "@students.nitw.ac.in",    "@nitw.ac.in",
+  "@students.nitt.edu",      "@nitt.edu",
+  "@students.nitc.ac.in",    "@nitc.ac.in",
+  "@students.nits.ac.in",    "@nits.ac.in",
+  "@students.nitp.ac.in",    "@nitp.ac.in",
+  "@students.nitrkl.ac.in",  "@nitrkl.ac.in",
+  "@students.vnit.ac.in",    "@vnit.ac.in",
+  "@students.nitmz.ac.in",   "@nitmz.ac.in",
+  "@students.nith.ac.in",    "@nith.ac.in",
+  "@iiit.ac.in",             "@students.iiit.ac.in",
+  "@students.iiith.ac.in",   "@iiith.ac.in",
+  "@iiitd.ac.in",            "@students.iiitd.ac.in",
+  "@iiitb.ac.in",            "@students.iiitb.ac.in",
+  "@iisc.ac.in",             "@students.iisc.ac.in",
+];
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+module.exports = { VALID_DOMAINS, EMAIL_REGEX };

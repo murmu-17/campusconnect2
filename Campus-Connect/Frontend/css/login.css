@@ -1,0 +1,168 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  height: 100vh;
+  background: #f4f1eb;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+/* LEFT SECTION */
+.left-section {
+  flex: 1;
+  background: #e9e6e1;
+  color: #4b2e05;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.logo {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #b37a0f;
+  padding: 10px;
+  background: white;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 20px rgba(179, 122, 15, 0.3);
+}
+
+.left-section h1 {
+  font-size: 34px;
+  color: #b37a0f;
+  margin-bottom: 10px;
+}
+
+.left-section p {
+  color: #4b2e05;
+  opacity: 0.8;
+}
+
+/* RIGHT SECTION */
+.right-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f4f1eb;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  padding: 35px 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.login-box h2 {
+  margin-bottom: 25px;
+  color: #4b2e05;
+}
+
+/* Inputs */
+.login-box input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 15px;
+  border-radius: 30px;
+  border: 1px solid #e0d5c7;
+  outline: none;
+  transition: 0.3s;
+}
+
+.login-box input:focus {
+  border-color: #b37a0f;
+}
+
+/* Button */
+.login-box button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 30px;
+  border: none;
+  background: #b37a0f;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.login-box button:hover {
+  background: #4b2e05;
+}
+
+/* Links */
+.forgot {
+  display: block;
+  margin-top: 15px;
+  font-size: 13px;
+  color: #4b2e05;
+  text-decoration: none;
+}
+
+.divider {
+  height: 1px;
+  background: #eee;
+  margin: 25px 0;
+}
+
+.create-account {
+  display: block;
+  padding: 12px;
+  border-radius: 30px;
+  border: 1px solid #b37a0f;
+  color: #b37a0f;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.create-account:hover {
+  background: #b37a0f;
+  color: white;
+}
+
+/* Responsive */
+@media(max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .left-section {
+    display: none;
+  }
+}
+
+/* Home Button */
+.home-btn {
+  position: absolute;
+  top: 25px;
+  left: 40px;
+  text-decoration: none;
+  background: #b37a0f;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.home-btn:hover {
+  background: #4b2e05;
+}

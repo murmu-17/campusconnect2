@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login | Campus Connect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../css/login.css">
+</head>
+
+<body>
+
+  <a href="../index.html" class="home-btn">← Home</a>
+
+  <div class="container">
+
+    <!-- LEFT SIDE -->
+    <div class="left-section">
+      <img src="../images/logo.png" class="logo" alt="Campus Logo">
+      <h1>Welcome Back</h1>
+      <p>Login to connect with your campus community.</p> 
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-section">
+      <div class="login-box">
+        <h2>Log in</h2>
+
+        <!-- Email OR Phone -->
+        <input id="identifier" type="text" placeholder="Email address or Phone number">
+        <input id="password" type="password" placeholder="Password">
+
+        <button onclick="login()">Log In</button>
+
+        <a href="forgot-password.html" class="forgot">Forgot password?</a>
+
+        <div class="divider"></div>
+
+        <a href="signup.html" class="create-account">Create new account</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/script.js"></script>
+</body>
+</html>

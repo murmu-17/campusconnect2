@@ -1,0 +1,90 @@
+body {  
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f1eb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #3b2a0a;
+  position: relative;
+}
+
+/* Home Button */
+.home-btn {
+  position: absolute;
+  top: 30px;
+  right: 40px;
+  text-decoration: none;
+  padding: 10px 22px;
+  border-radius: 25px;
+  font-weight: 600;
+  background-color: #b8860b;
+  color: white;
+  transition: 0.3s ease;
+}
+
+.home-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* Wrapper */
+.contact-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Contact Card */
+.contact-container {
+  text-align: center;
+  background: white;
+  padding: 50px 40px;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  width: 380px;
+}
+
+.contact-container h1 {
+  margin-bottom: 20px;
+  font-size: 30px;
+  font-weight: 700;
+  color: #b8860b;
+}
+
+.email-text {
+  font-size: 18px;
+  color: #5a3e0b;
+  font-weight: 500;
+}
+
+/* Social Icons */
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 25px;
+}
+
+.social-icons a {
+  font-size: 30px;
+  transition: 0.3s ease;
+}
+
+/* Official Brand Colors */
+.instagram {
+  color: #E1306C;
+}
+
+.facebook {
+  color: #1877F2;
+}
+
+.twitter {
+  color: #1DA1F2;
+}
+
+.social-icons a:hover {
+  transform: translateY(-6px) scale(1.15);
+}

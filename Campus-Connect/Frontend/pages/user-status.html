@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verification Status | Campus Connect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f3ef 0%, #e8e4dc 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 44px 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.10);
+      text-align: center;
+    }
+    .status-icon { font-size: 64px; margin-bottom: 16px; }
+    h1 { font-size: 22px; color: #4a3f35; margin-bottom: 6px; }
+    .name { font-size: 15px; color: #b37a0f; font-weight: 600; margin-bottom: 24px; }
+    .status-banner { border-radius: 14px; padding: 18px 20px; margin-bottom: 20px; text-align: left; }
+    .status-banner.pending   { background: #fff8e1; border: 1.5px solid #ffe082; }
+    .status-banner.disparity { background: #fff3e0; border: 1.5px solid #ffcc80; }
+    .status-banner.rejected  { background: #ffebee; border: 1.5px solid #ef9a9a; }
+    .status-banner.approved  { background: #e8f5e9; border: 1.5px solid #a5d6a7; }
+    .status-banner .label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .pending  .label  { color: #f59e0b; }
+    .disparity .label { color: #e65100; }
+    .rejected  .label { color: #c62828; }
+    .approved  .label { color: #2e7d32; }
+    .status-banner .message { font-size: 14px; color: #4a3f35; line-height: 1.6; }
+    .disparity-box { background: #fff3e0; border: 2px solid #e65100; border-radius: 14px; padding: 20px; margin-bottom: 20px; text-align: left; }
+    .disparity-box .dtitle { font-size: 13px; font-weight: 700; color: #e65100; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .disparity-box .dmsg { font-size: 15px; color: #4a3f35; line-height: 1.6; font-weight: 500; }
+    .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0ebe3; font-size: 13px; text-align: left; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #8b7d6b; font-weight: 600; }
+    .info-value { color: #4a3f35; font-weight: 500; }
+    .info-box { background: #fdfaf7; border-radius: 12px; padding: 4px 16px; margin-bottom: 20px; }
+    .btn { display: block; width: 100%; padding: 14px; border-radius: 30px; border: none; font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.3s; text-decoration: none; text-align: center; margin-top: 12px; }
+    .btn-primary { background: #b37a0f; color: white; }
+    .btn-primary:hover { background: #4b2e05; }
+    .btn-outline { background: transparent; border: 1.5px solid #e0d5c7; color: #8b7d6b; }
+    .btn-outline:hover { background: #f5f0e8; }
+    .step-list { text-align: left; margin-bottom: 20px; }
+    .step { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0ebe3; font-size: 13px; color: #4a3f35; }
+    .step:last-child { border-bottom: none; }
+    .step-num { background: #b37a0f; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  </style>
+</head>
+<body>
+
+<div class="card" id="mainCard">
+  <p style="color:#8b7d6b;font-size:14px;">Loading...</p>
+</div>
+
+<script>
+  var user = JSON.parse(sessionStorage.getItem("user") || "null");
+
+  if (!user) { window.location.href = "login.html"; }
+
+  var card = document.getElementById("mainCard");
+  var status = user.verification_status;
+  var hasDisparity = user.disparity_message && user.disparity_message.trim() !== "";
+
+  // ── DISPARITY STATE ──
+  if (status === "pending" && hasDisparity) {
+    card.innerHTML = `
+      <div class="status-icon">⚠️</div>
+      <h1>Action Required</h1>
+      <p class="name">${user.full_name || "User"}</p>
+
+      <div class="disparity-box">
+        <div class="dtitle">⚠️ Message from Admin</div>
+        <div class="dmsg">${user.disparity_message}</div>
+      </div>
+
+      <div class="status-banner disparity">
+        <div class="label">What you need to do</div>
+        <div class="message">Please re-submit your verification with the corrected document or information as mentioned above.</div>
+      </div>
+
+      <div class="step-list">
+        <div class="step"><div class="step-num">1</div><span>Read the admin's message carefully above</span></div>
+        <div class="step"><div class="step-num">2</div><span>Go to the signup page and submit again with the correct document</span></div>
+        <div class="step"><div class="step-num">3</div><span>Use the same email address so we can find your account</span></div>
+        <div class="step"><div class="step-num">4</div><span>Wait for admin to review your new submission</span></div>
+      </div>
+
+      <a href="verified-signup.html" class="btn btn-primary">Re-submit Verification</a>
+      <a href="../index.html" class="btn btn-outline">Back to Home</a>
+    `;
+
+  // ── PENDING ──
+  } else if (status === "pending") {
+    card.innerHTML = `
+      <div class="status-icon">⏳</div>
+      <h1>Verification Pending</h1>
+      <p class="name">${user.full_name || "User"}</p>
+
+      <div class="status-banner pending">
+        <div class="label">Under Review</div>
+        <div class="message">Your verification request has been received and is currently being reviewed by our admin team. This usually takes <strong>24–48 hours</strong>.</div>
+      </div>
+
+      <div class="info-box">
+        <div class="info-row">
+          <span class="info-label">Institute</span>
+          <span class="info-value">${user.institute || "—"}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Batch</span>
+          <span class="info-value">${user.batch || "—"}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Degree</span>
+          <span class="info-value">${user.degree || "—"}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Branch</span>
+          <span class="info-value">${user.branch || "—"}</span>
+        </div>
+      </div>
+
+      <a href="../index.html" class="btn btn-outline">Back to Home</a>
+    `;
+
+  // ── REJECTED ──
+  } else if (status === "rejected") {
+    card.innerHTML = `
+      <div class="status-icon">❌</div>
+      <h1>Verification Rejected</h1>
+      <p class="name">${user.full_name || "User"}</p>
+
+      <div class="status-banner rejected">
+        <div class="label">Not Approved</div>
+        <div class="message">Unfortunately your verification was rejected. Please contact support at <strong>support@campusconnect.in</strong> if you believe this is a mistake.</div>
+      </div>
+
+      <a href="contact.html" class="btn btn-primary">Contact Support</a>
+      <a href="../index.html" class="btn btn-outline">Back to Home</a>
+    `;
+
+  // ── APPROVED ──
+  } else if (status === "approved") {
+    card.innerHTML = `
+      <div class="status-icon">✅</div>
+      <h1>Verification Approved!</h1>
+      <p class="name">${user.full_name || "User"}</p>
+
+      <div class="status-banner approved">
+        <div class="label">Verified Student</div>
+        <div class="message">Your account has been verified. Welcome to Campus Connect!</div>
+      </div>
+
+      <a href="../index.html" class="btn btn-primary">Go to Home</a>
+    `;
+  }
+</script>
+
+</body>
+</html>
