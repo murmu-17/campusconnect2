@@ -277,7 +277,7 @@
 
 <script>
   const BASE_URL = "http://43.205.171.240";
-  const WS_URL   = "ws://43.205.171.240";
+  const WS_URL = "ws://43.205.171.240/socket.io/";
 
   var currentUser = JSON.parse(sessionStorage.getItem("user") || "null");
   if (!currentUser) { window.location.href = "login.html"; }
