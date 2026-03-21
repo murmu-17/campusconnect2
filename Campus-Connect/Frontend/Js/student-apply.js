@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5001";
+const BASE_URL = "http://43.205.171.240";
 
 var user = JSON.parse(sessionStorage.getItem("user") || "null");
 if (!user) { window.location.href = "login.html"; }

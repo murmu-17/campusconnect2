@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5001";
+const BASE_URL = "http://43.205.171.240";
 
 var otpVerified = false;
 var resendTimer = null;
