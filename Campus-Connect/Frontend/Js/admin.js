@@ -310,6 +310,7 @@ async function loadReports() {
       html += '<button class="btn-small btn-toggle" onclick="updateReport('+r.id+',\'reviewed\')">Reviewed</button>';
       html += '<button class="btn-small btn-approve" style="background:#4caf50;color:white;border:none;" onclick="updateReport('+r.id+',\'resolved\')">Resolve</button>';
       html += '<button class="btn-small" style="background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;" onclick="viewReportChat('+r.reporter_id+','+r.reported_id+',\''+(r.reporter_name||"").replace(/'/g,"")+'\',\''+(r.reported_name||"").replace(/'/g,"")+'\')" >💬 View Chat</button>';
+      html += '<button class="btn-small" style="background:#fff3e0;color:#e65100;border:1px solid #ffcc80;" onclick="warnUser('+r.reported_id+',\''+(r.reported_name||"").replace(/'/g,"")+'\')" >⚠️ Warn</button>';
       html += '<button class="btn-small btn-del" onclick="suspendUser('+r.reported_id+',\''+(r.reported_name||"").replace(/'/g,"")+'\')" >⏸️ Suspend</button>';
       html += '</td></tr>';
     });
@@ -324,6 +325,22 @@ async function updateReport(reportId,status){
     var data=await res.json();
     if(data.success)loadReports();else alert("Error: "+data.message);
   }catch(e){alert("Network error.");}
+}
+
+// ── WARN USER ──
+async function warnUser(userId, userName) {
+  var msg = prompt("Enter warning message for " + userName + ":\n\n(This will be shown as a popup when they next login)");
+  if (!msg || !msg.trim()) return;
+  try {
+    var res = await fetch(BASE_URL + "/admin/users/warn", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({user_id: userId, warning_message: msg.trim(), admin_id: currentAdmin.id, admin_name: currentAdmin.name, admin_role: currentAdmin.role})
+    });
+    var data = await res.json();
+    if (data.success) alert("⚠️ Warning sent to " + userName + " successfully!\n\nThey will see it as a popup on their next login.");
+    else alert("Error: " + data.message);
+  } catch(e) { alert("Network error."); }
 }
 
 // ── VIEW CHAT (for reports) ──
@@ -353,7 +370,6 @@ async function viewReportChat(user1Id, user2Id, user1Name, user2Name) {
       var date = new Date(m.created_at).toLocaleString("en-IN", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
       var bgColor = isUser1 ? "#e3f2fd" : "#f3e5f5";
       var nameColor = isUser1 ? "#1565c0" : "#6a1b9a";
-
       html += '<div style="background:' + bgColor + ';border-radius:12px;padding:10px 14px;max-width:85%;">';
       html += '<div style="font-size:11px;font-weight:700;color:' + nameColor + ';margin-bottom:4px;">' + escHtml(senderName) + '</div>';
       html += '<div style="font-size:13px;color:#4a3f35;line-height:1.5;">' + escHtml(m.content) + '</div>';
@@ -363,6 +379,7 @@ async function viewReportChat(user1Id, user2Id, user1Name, user2Name) {
     html += '</div>';
 
     html += '<div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">';
+    html += '<button onclick="warnUser(' + user2Id + ',\'' + escHtml(user2Name) + '\');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:#fff3e0;color:#e65100;font-family:\'Poppins\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⚠️ Warn ' + escHtml(user2Name) + '</button>';
     html += '<button onclick="suspendUser(' + user2Id + ',\'' + escHtml(user2Name) + '\');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:#fff8e1;color:#b37a0f;font-family:\'Poppins\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⏸️ Suspend ' + escHtml(user2Name) + '</button>';
     html += '<button onclick="closeDetailModal()" style="padding:10px 20px;border-radius:10px;border:none;background:#3e2c0f;color:white;font-family:\'Poppins\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Close</button>';
     html += '</div>';
@@ -415,6 +432,7 @@ function viewUser(encodedData) {
   </div>
   ${user.disparity_message?`<div style="margin-top:12px;background:#fff8e1;border-radius:12px;padding:14px;border-left:4px solid #b37a0f;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">⚠️ DISPARITY</div><div style="font-size:13px;color:#3e2c0f;">${user.disparity_message}</div></div>`:""}
   <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
+    <button onclick="warnUser(${user.id},'${(user.full_name||"").replace(/'/g,"")}');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:#fff3e0;color:#e65100;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⚠️ Warn</button>
     <button onclick="suspendUser(${user.id},'${(user.full_name||"").replace(/'/g,"")}');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:${suspendBg};color:${suspendColor};font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">${suspendLabel}</button>
     <button onclick="closeDetailModal()" style="padding:10px 20px;border-radius:10px;border:none;background:#3e2c0f;color:white;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Close</button>
   </div>`;
