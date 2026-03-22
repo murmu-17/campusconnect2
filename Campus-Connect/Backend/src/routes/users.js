@@ -99,61 +99,52 @@ router.get("/profile/:user_id", (req, res) => {
       if (results.length === 0) return res.json({ success: true, profile: {} });
       var p = results[0];
       try {
-  function safeparse(val, def) {
-    if (!val) return def;
-    if (typeof val === 'object') return val;
-    try { return JSON.parse(val); } catch(e) { return def; }
-  }
-  res.json({
-    success: true,
-    profile: {
-      headline:     p.headline,
-      about:        p.about,
-      experience:   safeparse(p.experience,   []),
-      internships:  safeparse(p.internships,  []),
-      education:    safeparse(p.education,    []),
-      projects:     safeparse(p.projects,     []),
-      skills:       safeparse(p.skills,       []),
-      achievements: safeparse(p.achievements, []),
-      profile_pic:  p.profile_pic,
-      visibility:   safeparse(p.visibility,   {})
-    }
-  });
-} catch(e) {
-  console.error("Profile parse error:", e);
-  res.json({ success: false, message: "Parse error" });
-}
+        function safeparse(val, def) {
+          if (!val) return def;
+          if (typeof val === 'object') return val;
+          try { return JSON.parse(val); } catch(e) { return def; }
+        }
+        res.json({
+          success: true,
+          profile: {
+            headline:     p.headline,
+            about:        p.about,
+            experience:   safeparse(p.experience,   []),
+            internships:  safeparse(p.internships,  []),
+            education:    safeparse(p.education,    []),
+            projects:     safeparse(p.projects,     []),
+            skills:       safeparse(p.skills,       []),
+            achievements: safeparse(p.achievements, []),
+            profile_pic:  p.profile_pic,
+            visibility:   safeparse(p.visibility,   {})
+          }
+        });
+      } catch(e) {
+        console.error("Profile parse error:", e);
+        res.json({ success: false, message: "Parse error" });
+      }
     }
   );
 });
-// ================= WARN USER =================
-// Add this BEFORE module.exports in Backend/src/routes/admin.js
 
-router.post("/users/warn", (req, res) => {
-  const { user_id, warning_message, admin_id, admin_name, admin_role } = req.body;
-  if (!user_id || !warning_message) return res.json({ success: false, message: "User ID and message required" });
-
-  db.query("SELECT full_name, email FROM users WHERE id=?", [user_id], (err, result) => {
-    if (err || result.length === 0) return res.json({ success: false, message: "User not found" });
-
-    const userName = result[0].full_name || "User";
-    const userEmail = result[0].email;
-
-    db.query(
-      "UPDATE users SET warning_message=?, warning_seen=0 WHERE id=?",
-      [warning_message, user_id],
-      (err2) => {
-        if (err2) return res.json({ success: false, message: "DB error" });
-
-        logActivity(admin_id, admin_name, admin_role, "Warned user: " + warning_message, user_id, userName);
-
-        // Send warning email
-        const { sendWarningEmail } = require("../lib/email");
-        sendWarningEmail(userEmail, userName, warning_message).catch(e => console.error("Email error:", e));
-
-        res.json({ success: true, message: "Warning sent to " + userName });
-      }
-    );
+// ================= GET WARNING =================
+router.get("/warning/:user_id", (req, res) => {
+  db.query("SELECT warning_message, warning_seen FROM users WHERE id=?", [req.params.user_id], (err, results) => {
+    if (err || results.length === 0) return res.json({ success: false });
+    var u = results[0];
+    if (u.warning_message && u.warning_seen === 0) {
+      return res.json({ success: true, has_warning: true, warning_message: u.warning_message });
+    }
+    res.json({ success: true, has_warning: false });
   });
 });
+
+// ================= MARK WARNING SEEN =================
+router.post("/warning/seen/:user_id", (req, res) => {
+  db.query("UPDATE users SET warning_seen=1 WHERE id=?", [req.params.user_id], (err) => {
+    if (err) return res.json({ success: false });
+    res.json({ success: true });
+  });
+});
+
 module.exports = router;

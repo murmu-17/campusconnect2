@@ -78,8 +78,6 @@
     .tip-num { background:var(--gold); color:white; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; margin-top:2px; }
     .btn-view-profile { display:inline-block; margin-top:14px; padding:8px 20px; border-radius:20px; border:1.5px solid var(--gold); color:var(--gold); font-size:13px; font-weight:600; text-decoration:none; transition:0.2s; }
     .btn-view-profile:hover { background:var(--gold); color:white; }
-
-    /* ── MY APPLICATIONS ── */
     .app-item { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid #f5f0ea; }
     .app-item:last-child { border-bottom:none; }
     .app-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
@@ -94,6 +92,17 @@
     .app-empty { text-align:center; padding:24px 0; color:var(--muted); font-size:13px; }
     .app-empty a { color:var(--gold); font-weight:600; text-decoration:none; }
 
+    /* ── WARNING POPUP ── */
+    .warning-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px; }
+    .warning-box { background:white; border-radius:20px; padding:32px; width:100%; max-width:460px; box-shadow:0 20px 60px rgba(0,0,0,0.3); border-top:6px solid #e65100; }
+    .warning-box h2 { font-size:20px; font-weight:700; color:#e65100; margin-bottom:6px; }
+    .warning-box .warning-sub { font-size:13px; color:var(--muted); margin-bottom:20px; }
+    .warning-reason { background:#fff3e0; border:1.5px solid #e65100; border-radius:12px; padding:14px 16px; margin-bottom:20px; font-size:13px; color:#4a3f35; line-height:1.6; }
+    .warning-note { font-size:12px; color:var(--muted); margin-bottom:24px; line-height:1.6; }
+    .warning-note strong { color:#c62828; }
+    .btn-warning-ok { width:100%; padding:14px; border-radius:12px; border:none; background:var(--dark); color:white; font-family:'Poppins',sans-serif; font-size:14px; font-weight:700; cursor:pointer; transition:0.2s; }
+    .btn-warning-ok:hover { background:#e65100; }
+
     footer { background:var(--dark); color:white; text-align:center; padding:18px; font-size:13px; margin-top:40px; }
     @media(max-width:900px) {
       nav { padding:14px 16px; } .nav-links { display:none; }
@@ -104,6 +113,18 @@
   </style>
 </head>
 <body>
+
+<!-- ── WARNING POPUP ── -->
+<div class="warning-overlay" id="warningOverlay" style="display:none;">
+  <div class="warning-box">
+    <h2>⚠️ Account Warning</h2>
+    <p class="warning-sub">Your account has been flagged by Campus Connect admin.</p>
+    <div class="warning-reason" id="warningReason">—</div>
+    <p class="warning-note">Please ensure respectful communication with other users. <strong>Further violations may result in permanent suspension of your account.</strong></p>
+    <button class="btn-warning-ok" onclick="dismissWarning()">✓ I Understand, Continue</button>
+  </div>
+</div>
+
 <nav>
   <div class="nav-brand"><h2>🎓 Campus Connect</h2></div>
   <ul class="nav-links">
@@ -184,7 +205,6 @@
     </div>
   </div>
 
-  <!-- ── MY APPLICATIONS (only for verified+approved students) ── -->
   <div class="card" id="applicationsCard" style="display:none; margin-bottom:20px;">
     <div class="card-title-row">
       <div class="card-title">💼 My Applications</div>
@@ -289,19 +309,37 @@
   else if (status==="pending") { document.getElementById("alertPending").style.display="flex"; }
   else if (status==="rejected") { document.getElementById("alertRejected").style.display="flex"; }
 
+  // ── CHECK WARNING ──
+  async function checkWarning() {
+    try {
+      var res  = await fetch(BASE_URL + "/users/warning/" + user.id);
+      var data = await res.json();
+      if (data.success && data.has_warning) {
+        document.getElementById("warningReason").textContent = data.warning_message;
+        document.getElementById("warningOverlay").style.display = "flex";
+      }
+    } catch(e) { console.log("Warning check error:", e); }
+  }
+
+  async function dismissWarning() {
+    document.getElementById("warningOverlay").style.display = "none";
+    try {
+      await fetch(BASE_URL + "/users/warning/seen/" + user.id, { method:"POST" });
+    } catch(e) { console.log("Warning dismiss error:", e); }
+  }
+
+  checkWarning();
+
   // ── MY APPLICATIONS ──
   async function loadMyApplications() {
     document.getElementById("applicationsCard").style.display = "block";
     try {
       var res  = await fetch(BASE_URL + "/jobs/my-applications/" + user.id);
       var data = await res.json();
-
       if (!data.success || data.applications.length === 0) {
-        document.getElementById("applicationsList").innerHTML =
-          '<div class="app-empty">No applications yet. <a href="opportunities.html">Browse Opportunities →</a></div>';
+        document.getElementById("applicationsList").innerHTML = '<div class="app-empty">No applications yet. <a href="opportunities.html">Browse Opportunities →</a></div>';
         return;
       }
-
       var html = "";
       data.applications.forEach(function(a) {
         var icon  = a.status==="accepted" ? "🎉" : a.status==="rejected" ? "❌" : "⏳";
@@ -309,7 +347,6 @@
         var date  = new Date(a.created_at).toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"});
         var label = a.status==="accepted" ? "✓ Accepted" : a.status==="rejected" ? "✗ Not Selected" : "⏳ Under Review";
         var typeLabel = {internship:"Internship",fulltime:"Full-time",parttime:"Part-time",contract:"Contract"}[a.type] || "";
-
         html += '<div class="app-item">';
         html += '<div class="app-icon" style="background:'+iconBg+';">'+icon+'</div>';
         html += '<div class="app-body">';
@@ -320,12 +357,9 @@
         html += '<span class="status-pill '+a.status+'">'+label+'</span>';
         html += '</div>';
       });
-
       document.getElementById("applicationsList").innerHTML = html;
-
     } catch(e) {
-      document.getElementById("applicationsList").innerHTML =
-        '<div class="app-empty" style="color:#c62828;">Could not load applications.</div>';
+      document.getElementById("applicationsList").innerHTML = '<div class="app-empty" style="color:#c62828;">Could not load applications.</div>';
     }
   }
 
