@@ -151,8 +151,7 @@
 
   function renderProfile(u, dbProfile) {
     // Merge db profile with any local data as fallback
-    var localProfile = JSON.parse(localStorage.getItem("cc_profile_" + u.id) || "{}");
-    var profileData = Object.keys(dbProfile).length > 0 ? dbProfile : localProfile;
+    var profileData = dbProfile || {};
 
     var vis  = profileData.visibility || {};
     var name = u.full_name || "Unknown";
