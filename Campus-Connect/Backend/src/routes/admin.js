@@ -279,6 +279,35 @@ router.post("/companies/delete", (req, res) => {
     });
   });
 });
+// ================= WARN USER =================
+// Add this BEFORE module.exports in Backend/src/routes/admin.js
 
+router.post("/users/warn", (req, res) => {
+  const { user_id, warning_message, admin_id, admin_name, admin_role } = req.body;
+  if (!user_id || !warning_message) return res.json({ success: false, message: "User ID and message required" });
+
+  db.query("SELECT full_name, email FROM users WHERE id=?", [user_id], (err, result) => {
+    if (err || result.length === 0) return res.json({ success: false, message: "User not found" });
+
+    const userName = result[0].full_name || "User";
+    const userEmail = result[0].email;
+
+    db.query(
+      "UPDATE users SET warning_message=?, warning_seen=0 WHERE id=?",
+      [warning_message, user_id],
+      (err2) => {
+        if (err2) return res.json({ success: false, message: "DB error" });
+
+        logActivity(admin_id, admin_name, admin_role, "Warned user: " + warning_message, user_id, userName);
+
+        // Send warning email
+        const { sendWarningEmail } = require("../lib/email");
+        sendWarningEmail(userEmail, userName, warning_message).catch(e => console.error("Email error:", e));
+
+        res.json({ success: true, message: "Warning sent to " + userName });
+      }
+    );
+  });
+});
 // ================= EXPORT ================= 
 module.exports = router;
