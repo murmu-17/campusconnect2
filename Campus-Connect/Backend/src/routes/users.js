@@ -1,3 +1,4 @@
+ubuntu@ip-172-31-46-194:~/campusconnect2$ cat ~/campusconnect2/Campus-Connect/Backend/src/routes/users.js
 const express = require("express");
 const router = express.Router();
 const db = require("../db/connection");
@@ -99,26 +100,33 @@ router.get("/profile/:user_id", (req, res) => {
       if (results.length === 0) return res.json({ success: true, profile: {} });
       var p = results[0];
       try {
-        res.json({
-          success: true,
-          profile: {
-            headline:     p.headline,
-            about:        p.about,
-            experience:   JSON.parse(p.experience   || "[]"),
-            internships:  JSON.parse(p.internships  || "[]"),
-            education:    JSON.parse(p.education    || "[]"),
-            projects:     JSON.parse(p.projects     || "[]"),
-            skills:       JSON.parse(p.skills       || "[]"),
-            achievements: JSON.parse(p.achievements || "[]"),
-            profile_pic:  p.profile_pic,
-            visibility:   JSON.parse(p.visibility   || "{}")
-          }
-        });
-      } catch(e) {
-        res.json({ success: true, profile: {} });
-      }
+  function safeparse(val, def) {
+    if (!val) return def;
+    if (typeof val === 'object') return val;
+    try { return JSON.parse(val); } catch(e) { return def; }
+  }
+  res.json({
+    success: true,
+    profile: {
+      headline:     p.headline,
+      about:        p.about,
+      experience:   safeparse(p.experience,   []),
+      internships:  safeparse(p.internships,  []),
+      education:    safeparse(p.education,    []),
+      projects:     safeparse(p.projects,     []),
+      skills:       safeparse(p.skills,       []),
+      achievements: safeparse(p.achievements, []),
+      profile_pic:  p.profile_pic,
+      visibility:   safeparse(p.visibility,   {})
+    }
+  });
+} catch(e) {
+  console.error("Profile parse error:", e);
+  res.json({ success: false, message: "Parse error" });
+}
     }
   );
 });
 
 module.exports = router;
+
