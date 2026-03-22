@@ -1,4 +1,3 @@
-ubuntu@ip-172-31-46-194:~/campusconnect2$ cat ~/campusconnect2/Campus-Connect/Backend/src/routes/users.js
 const express = require("express");
 const router = express.Router();
 const db = require("../db/connection");
@@ -129,4 +128,3 @@ router.get("/profile/:user_id", (req, res) => {
 });
 
 module.exports = router;
-

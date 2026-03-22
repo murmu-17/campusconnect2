@@ -293,6 +293,7 @@ async function deleteVerifier(id,name){
   try{var res=await fetch(BASE_URL+"/admin/verifiers/delete",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({verifier_id:id})});var data=await res.json();if(data.success){alert("Deleted.");loadVerifiers();}else alert("Error: "+data.message);}catch(e){alert("Network error.");}
 }
 
+// ── REPORTS ──
 async function loadReports() {
   document.getElementById("reportsList").innerHTML = '<p class="loading">Loading...</p>';
   try {
@@ -305,15 +306,73 @@ async function loadReports() {
       var sc = r.status === "resolved" ? "badge-approved" : r.status === "reviewed" ? "badge-pending" : "badge-rejected";
       html += '<tr><td>'+(i+1)+'</td><td>'+(r.reporter_name||"—")+'</td><td style="font-weight:600;color:#c62828;">'+(r.reported_name||"—")+'</td><td>'+(r.reason||"—")+'</td>';
       html += '<td style="max-width:160px;font-size:12px;">'+(r.details||"—")+'</td><td><span class="badge '+sc+'">'+r.status+'</span></td><td style="font-size:12px;">'+date+'</td>';
-      html += '<td><button class="btn-small btn-toggle" onclick="updateReport('+r.id+',\'reviewed\')">Reviewed</button> ';
-      html += '<button class="btn-small btn-approve" style="background:#4caf50;color:white;border:none;" onclick="updateReport('+r.id+',\'resolved\')">Resolve</button> ';
-      html += '<button class="btn-small btn-del" onclick="suspendUser('+r.reported_id+',\''+(r.reported_name||"").replace(/'/g,"")+'\')" >⏸️ Suspend</button></td></tr>';
+      html += '<td style="display:flex;gap:4px;flex-wrap:wrap;">';
+      html += '<button class="btn-small btn-toggle" onclick="updateReport('+r.id+',\'reviewed\')">Reviewed</button>';
+      html += '<button class="btn-small btn-approve" style="background:#4caf50;color:white;border:none;" onclick="updateReport('+r.id+',\'resolved\')">Resolve</button>';
+      html += '<button class="btn-small" style="background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;" onclick="viewReportChat('+r.reporter_id+','+r.reported_id+',\''+(r.reporter_name||"").replace(/'/g,"")+'\',\''+(r.reported_name||"").replace(/'/g,"")+'\')" >💬 View Chat</button>';
+      html += '<button class="btn-small btn-del" onclick="suspendUser('+r.reported_id+',\''+(r.reported_name||"").replace(/'/g,"")+'\')" >⏸️ Suspend</button>';
+      html += '</td></tr>';
     });
     html += '</tbody></table>';
     document.getElementById("reportsList").innerHTML = html;
   } catch(e) { document.getElementById("reportsList").innerHTML = '<p class="empty">Error.</p>'; }
 }
-async function updateReport(reportId,status){try{var res=await fetch(BASE_URL+"/admin/reports/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({report_id:reportId,status:status})});var data=await res.json();if(data.success)loadReports();else alert("Error: "+data.message);}catch(e){alert("Network error.");}}
+
+async function updateReport(reportId,status){
+  try{
+    var res=await fetch(BASE_URL+"/admin/reports/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({report_id:reportId,status:status})});
+    var data=await res.json();
+    if(data.success)loadReports();else alert("Error: "+data.message);
+  }catch(e){alert("Network error.");}
+}
+
+// ── VIEW CHAT (for reports) ──
+async function viewReportChat(user1Id, user2Id, user1Name, user2Name) {
+  document.getElementById("detailContent").innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:32px;margin-bottom:12px;">💬</div><p style="color:#8b7d6b;">Loading chat history...</p></div>';
+  document.getElementById("detailModal").style.display = "flex";
+
+  try {
+    var res  = await fetch(BASE_URL + "/messages/" + user1Id + "/" + user2Id);
+    var data = await res.json();
+
+    if (!data.success || data.messages.length === 0) {
+      document.getElementById("detailContent").innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:32px;margin-bottom:12px;">🔍</div><h3 style="color:#4a3f35;margin-bottom:8px;">No messages found</h3><p style="color:#8b7d6b;">These users have no chat history.</p></div>';
+      return;
+    }
+
+    var html = '<div style="margin-bottom:16px;padding:12px 16px;background:#fff8e1;border-radius:10px;border-left:4px solid #b37a0f;">';
+    html += '<div style="font-size:12px;font-weight:700;color:#b37a0f;margin-bottom:4px;">💬 CHAT HISTORY</div>';
+    html += '<div style="font-size:13px;color:#4a3f35;"><strong>' + escHtml(user1Name) + '</strong> &harr; <strong>' + escHtml(user2Name) + '</strong></div>';
+    html += '<div style="font-size:11px;color:#8b7d6b;margin-top:2px;">' + data.messages.length + ' messages total</div>';
+    html += '</div>';
+
+    html += '<div style="max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 0;">';
+    data.messages.forEach(function(m) {
+      var isUser1 = m.sender_id === user1Id;
+      var senderName = m.sender_name || (isUser1 ? user1Name : user2Name);
+      var date = new Date(m.created_at).toLocaleString("en-IN", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
+      var bgColor = isUser1 ? "#e3f2fd" : "#f3e5f5";
+      var nameColor = isUser1 ? "#1565c0" : "#6a1b9a";
+
+      html += '<div style="background:' + bgColor + ';border-radius:12px;padding:10px 14px;max-width:85%;">';
+      html += '<div style="font-size:11px;font-weight:700;color:' + nameColor + ';margin-bottom:4px;">' + escHtml(senderName) + '</div>';
+      html += '<div style="font-size:13px;color:#4a3f35;line-height:1.5;">' + escHtml(m.content) + '</div>';
+      html += '<div style="font-size:10px;color:#8b7d6b;margin-top:4px;text-align:right;">' + date + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    html += '<div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">';
+    html += '<button onclick="suspendUser(' + user2Id + ',\'' + escHtml(user2Name) + '\');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:#fff8e1;color:#b37a0f;font-family:\'Poppins\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⏸️ Suspend ' + escHtml(user2Name) + '</button>';
+    html += '<button onclick="closeDetailModal()" style="padding:10px 20px;border-radius:10px;border:none;background:#3e2c0f;color:white;font-family:\'Poppins\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Close</button>';
+    html += '</div>';
+
+    document.getElementById("detailContent").innerHTML = html;
+
+  } catch(e) {
+    document.getElementById("detailContent").innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:32px;">❌</div><p style="color:#c62828;">Could not load chat history.</p></div>';
+  }
+}
 
 async function loadLogs() {
   document.getElementById("logsList").innerHTML = '<p class="loading">Loading...</p>';
@@ -330,6 +389,8 @@ async function loadLogs() {
 
 function closeDetailModal(){document.getElementById("detailModal").style.display="none";}
 function closeUserModal(){document.getElementById("detailModal").style.display="none";}
+
+function escHtml(t){if(!t)return"";return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
 function viewUser(encodedData) {
   var user=JSON.parse(decodeURIComponent(encodedData));
