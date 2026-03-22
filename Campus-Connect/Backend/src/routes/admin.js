@@ -198,6 +198,27 @@ router.post("/users/delete", (req, res) => {
   });
 });
 
+// ================= SUSPEND / UNSUSPEND USER =================
+router.post("/users/suspend", (req, res) => {
+  const { user_id, admin_id, admin_name, admin_role } = req.body;
+  if (!user_id) return res.json({ success: false, message: "User ID required" });
+
+  db.query("SELECT full_name, is_suspended FROM users WHERE id=?", [user_id], (err, result) => {
+    if (err || result.length === 0)
+      return res.json({ success: false, message: "User not found" });
+
+    const userName = result[0].full_name || "Unknown";
+    const newStatus = result[0].is_suspended ? 0 : 1;
+    const action = newStatus ? "Suspended" : "Unsuspended";
+
+    db.query("UPDATE users SET is_suspended=? WHERE id=?", [newStatus, user_id], (err2) => {
+      if (err2) return res.json({ success: false, message: "DB error" });
+      logActivity(admin_id, admin_name, admin_role, action + " user", user_id, userName);
+      res.json({ success: true, suspended: newStatus, message: "User " + action.toLowerCase() + " successfully" });
+    });
+  });
+});
+
 // ================= INSTITUTE TOGGLE =================
 router.post("/institutes/toggle", (req, res) => {
   const { institute_id } = req.body;
@@ -213,8 +234,6 @@ router.post("/institutes/toggle", (req, res) => {
     }
   );
 });
-
-module.exports = router;
 
 // ================= COMPANIES =================
 router.get("/companies", (req, res) => {
@@ -260,3 +279,6 @@ router.post("/companies/delete", (req, res) => {
     });
   });
 });
+
+// ================= EXPORT ================= 
+module.exports = router;

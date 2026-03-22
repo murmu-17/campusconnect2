@@ -114,6 +114,11 @@ router.post("/login", (req, res) => {
       const user = result[0];
       const valid = await bcrypt.compare(password, user.password);
       if (!valid) return res.json({ success: false, message: "Invalid credentials" });
+
+      // ── SUSPENDED CHECK ──
+      if (user.is_suspended === 1)
+        return res.json({ success: false, message: "Your account has been suspended. Contact support@campusconnect.in" });
+
       if (user.verification_status === "rejected")
         return res.json({ success: false, message: "Account rejected. Contact support." });
 

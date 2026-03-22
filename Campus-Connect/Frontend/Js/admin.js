@@ -125,24 +125,36 @@ async function loadUsers() {
     data.users.forEach(function(user, i) {
       var sc = user.verification_status === "approved" ? "badge-approved" : user.verification_status === "pending" ? "badge-pending" : "badge-rejected";
       var userData = encodeURIComponent(JSON.stringify(user));
+      var suspendLabel = user.is_suspended ? "▶️ Unsuspend" : "⏸️ Suspend";
+      var suspendClass = user.is_suspended ? "btn-small btn-approve" : "btn-small btn-toggle";
       html += '<tr><td>' + (i+1) + '</td>';
       html += '<td><span style="color:#b37a0f;font-weight:600;cursor:pointer;text-decoration:underline;" onclick="viewUser(\'' + userData + '\')">' + (user.full_name||"N/A") + '</span></td>';
       html += '<td style="font-size:12px;color:#b37a0f;">' + (user.email||user.phone||"—") + '</td>';
       html += '<td>' + (user.institute||"—") + '</td><td>' + (user.batch||"—") + '</td><td>' + (user.degree||"—") + '</td><td>' + (user.branch||"—") + '</td><td>' + (user.account_type||"—") + '</td>';
-      html += '<td><span class="badge ' + sc + '">' + user.verification_status + '</span></td>';
-      html += '<td><button class="btn-small btn-del" onclick="deleteUser(' + user.id + ',\'' + (user.full_name||"").replace(/'/g,"") + '\')">Delete</button></td></tr>';
+      html += '<td><span class="badge ' + sc + '">' + (user.is_suspended ? "🔴 Suspended" : user.verification_status) + '</span></td>';
+      html += '<td style="display:flex;gap:6px;flex-wrap:wrap;">';
+      html += '<button class="btn-small btn-view" onclick="viewUser(\'' + userData + '\')">👁️ View</button>';
+      html += '<button class="' + suspendClass + '" onclick="suspendUser(' + user.id + ',\'' + (user.full_name||"").replace(/'/g,"") + '\')">' + suspendLabel + '</button>';
+      html += '</td></tr>';
     });
     html += '</tbody></table><p style="padding:12px 16px;font-size:12px;color:#8b7d6b;">Showing ' + data.total + ' users</p>';
     document.getElementById("usersList").innerHTML = html;
   } catch(e) { document.getElementById("usersList").innerHTML = '<p class="empty">Error loading users.</p>'; }
 }
 
-async function deleteUser(userId, userName) {
-  if (!confirm("DELETE account of " + userName + "?")) return;
+async function suspendUser(userId, userName) {
+  if (!confirm("Toggle suspend for account of " + userName + "?")) return;
   try {
-    var res = await fetch(BASE_URL + "/admin/users/delete", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({user_id:userId, admin_id:currentAdmin.id, admin_name:currentAdmin.name, admin_role:currentAdmin.role}) });
+    var res = await fetch(BASE_URL + "/admin/users/suspend", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({user_id: userId, admin_id: currentAdmin.id, admin_name: currentAdmin.name, admin_role: currentAdmin.role})
+    });
     var data = await res.json();
-    if (data.success) { alert("User deleted."); loadUsers(); } else alert("Error: " + data.message);
+    if (data.success) {
+      alert("User " + (data.suspended ? "suspended ⏸️" : "unsuspended ▶️") + " successfully!");
+      loadUsers();
+    } else alert("Error: " + data.message);
   } catch(e) { alert("Network error."); }
 }
 
@@ -253,6 +265,7 @@ async function loadVerifiers() {
     document.getElementById("verifiersList").innerHTML = html;
   } catch(e) { document.getElementById("verifiersList").innerHTML = '<p class="empty">Error.</p>'; }
 }
+
 function openVerifierModal() { document.getElementById("newVerifierName").value=""; document.getElementById("newVerifierEmail").value=""; document.getElementById("newVerifierPassword").value=""; document.getElementById("verifierModal").style.display="flex"; }
 function closeVerifierModal() { document.getElementById("verifierModal").style.display="none"; }
 async function createVerifier() {
@@ -294,17 +307,13 @@ async function loadReports() {
       html += '<td style="max-width:160px;font-size:12px;">'+(r.details||"—")+'</td><td><span class="badge '+sc+'">'+r.status+'</span></td><td style="font-size:12px;">'+date+'</td>';
       html += '<td><button class="btn-small btn-toggle" onclick="updateReport('+r.id+',\'reviewed\')">Reviewed</button> ';
       html += '<button class="btn-small btn-approve" style="background:#4caf50;color:white;border:none;" onclick="updateReport('+r.id+',\'resolved\')">Resolve</button> ';
-      html += '<button class="btn-small btn-del" onclick="deleteReportedUser('+r.reported_id+',\''+(r.reported_name||"").replace(/'/g,"")+'\',' +r.id+')">Delete User</button></td></tr>';
+      html += '<button class="btn-small btn-del" onclick="suspendUser('+r.reported_id+',\''+(r.reported_name||"").replace(/'/g,"")+'\')" >⏸️ Suspend</button></td></tr>';
     });
     html += '</tbody></table>';
     document.getElementById("reportsList").innerHTML = html;
   } catch(e) { document.getElementById("reportsList").innerHTML = '<p class="empty">Error.</p>'; }
 }
 async function updateReport(reportId,status){try{var res=await fetch(BASE_URL+"/admin/reports/update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({report_id:reportId,status:status})});var data=await res.json();if(data.success)loadReports();else alert("Error: "+data.message);}catch(e){alert("Network error.");}}
-async function deleteReportedUser(userId,userName,reportId){
-  if(!confirm("DELETE account of "+userName+"?"))return;
-  try{var res=await fetch(BASE_URL+"/admin/users/delete",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:userId,admin_id:currentAdmin.id,admin_name:currentAdmin.name,admin_role:currentAdmin.role})});var data=await res.json();if(data.success){alert("Deleted.");await updateReport(reportId,"resolved");}else alert("Error: "+data.message);}catch(e){alert("Network error.");}
-}
 
 async function loadLogs() {
   document.getElementById("logsList").innerHTML = '<p class="loading">Loading...</p>';
@@ -329,7 +338,10 @@ function viewUser(encodedData) {
   var typeIcon=user.account_type==="verified"?"✅":"👤";
   var joined=user.created_at?new Date(user.created_at).toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"}):"—";
   var initials=(user.full_name||"?").split(" ").map(function(w){return w[0];}).join("").toUpperCase().slice(0,2);
-  var html=`<div style="text-align:center;margin-bottom:24px;"><div style="width:72px;height:72px;border-radius:50%;background:#3e2c0f;color:#f0c060;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">${initials}</div><h3 style="font-size:20px;color:#3e2c0f;margin-bottom:4px;">${user.full_name||"N/A"}</h3><span style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;background:${scBg};color:${sc};">${user.verification_status}</span></div>
+  var suspendLabel = user.is_suspended ? "▶️ Unsuspend" : "⏸️ Suspend";
+  var suspendBg = user.is_suspended ? "#e8f5e9" : "#fff8e1";
+  var suspendColor = user.is_suspended ? "#2e7d32" : "#b37a0f";
+  var html=`<div style="text-align:center;margin-bottom:24px;"><div style="width:72px;height:72px;border-radius:50%;background:#3e2c0f;color:#f0c060;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">${initials}</div><h3 style="font-size:20px;color:#3e2c0f;margin-bottom:4px;">${user.full_name||"N/A"}</h3><span style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;background:${scBg};color:${sc};">${user.is_suspended ? "🔴 Suspended" : user.verification_status}</span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
     <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">EMAIL</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;word-break:break-all;">${user.email||"—"}</div></div>
     <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">PHONE</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${user.phone||"—"}</div></div>
@@ -342,7 +354,7 @@ function viewUser(encodedData) {
   </div>
   ${user.disparity_message?`<div style="margin-top:12px;background:#fff8e1;border-radius:12px;padding:14px;border-left:4px solid #b37a0f;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">⚠️ DISPARITY</div><div style="font-size:13px;color:#3e2c0f;">${user.disparity_message}</div></div>`:""}
   <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
-    <button onclick="deleteUser(${user.id},'${(user.full_name||"").replace(/'/g,"")}');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:#ffebee;color:#c62828;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">🗑 Delete</button>
+    <button onclick="suspendUser(${user.id},'${(user.full_name||"").replace(/'/g,"")}');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:${suspendBg};color:${suspendColor};font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">${suspendLabel}</button>
     <button onclick="closeDetailModal()" style="padding:10px 20px;border-radius:10px;border:none;background:#3e2c0f;color:white;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Close</button>
   </div>`;
   document.getElementById("detailContent").innerHTML=html;
