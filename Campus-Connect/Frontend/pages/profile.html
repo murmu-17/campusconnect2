@@ -15,8 +15,6 @@
       --red: #c62828; --red-bg: #ffeaea;
     }
     body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-    /* NAV */
     nav { background: var(--white); padding: 14px 60px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 200; }
     .nav-brand h2 { color: var(--gold); font-size: 18px; font-weight: 700; }
     .nav-links { display: flex; gap: 28px; list-style: none; }
@@ -27,26 +25,19 @@
     .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .btn-logout { padding: 7px 18px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: 0.2s; }
     .btn-logout:hover { border-color: #f44336; color: #f44336; }
-
-    /* LAYOUT */
     .main { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; display: flex; flex-direction: column; gap: 16px; }
-
-    /* PROFILE CARD */
     .profile-card { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
     .profile-accent-bar { height: 6px; background: linear-gradient(90deg, var(--dark) 0%, var(--gold) 50%, #e8c870 100%); }
-
     .profile-header { padding: 28px 32px 24px; display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: start; }
-
     .avatar-section { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     .profile-pic { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #fff; background: linear-gradient(135deg, var(--gold), var(--dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: 700; overflow: hidden; box-shadow: 0 0 0 4px var(--gold-light), 0 4px 20px rgba(179,122,15,0.3); }
-    .profile-pic img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .profile-pic img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: none; }
     .pic-btns { display: flex; gap: 5px; }
     .pic-btn { padding: 3px 10px; border-radius: 12px; border: none; font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; }
     .pic-btn.change { background: var(--gold-light); color: var(--dark); border: 1px solid #e8c870; }
     .pic-btn.change:hover { background: var(--gold); color: white; }
     .pic-btn.remove { background: #ffeaea; color: #c62828; border: 1px solid #ffcdd2; display: none; }
     .pic-btn.remove:hover { background: #e53935; color: white; }
-
     .profile-info { min-width: 0; }
     .profile-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
     .profile-name { font-size: 24px; font-weight: 700; color: var(--text); }
@@ -58,39 +49,28 @@
     .profile-meta { display: flex; flex-wrap: wrap; gap: 8px; }
     .meta-pill { display: inline-flex; align-items: center; gap: 5px; background: var(--gold-light); border: 1px solid #f0d89a; border-radius: 20px; padding: 5px 12px; font-size: 12px; color: var(--dark); font-weight: 500; }
     .meta-pill.email { background: #f0f4ff; border-color: #c7d4f7; color: #3a4a8a; }
-
     .profile-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
     .btn-edit { padding: 9px 20px; border-radius: 20px; border: 1.5px solid var(--gold); background: transparent; color: var(--gold); font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap; }
     .btn-edit:hover { background: var(--gold); color: white; }
     .btn-preview { padding: 9px 20px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap; }
     .btn-preview:hover { border-color: var(--dark); color: var(--dark); }
-
-    /* SECTION CARDS */
     .section-card { background: var(--white); border-radius: var(--radius); box-shadow: 0 4px 20px rgba(0,0,0,0.07); overflow: hidden; }
     .section-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 28px 16px; border-bottom: 1px solid #f5f0ea; }
     .section-header-left { display: flex; align-items: center; gap: 10px; }
     .section-title { font-size: 15px; font-weight: 700; color: var(--text); }
     .section-header-right { display: flex; align-items: center; gap: 10px; }
-
-    /* VISIBILITY TOGGLE */
     .vis-toggle { display: flex; align-items: center; gap: 6px; background: #f5f0ea; border-radius: 20px; padding: 4px 10px; cursor: pointer; border: none; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; color: var(--muted); transition: 0.2s; }
     .vis-toggle:hover { background: var(--gold-light); color: var(--dark); }
     .vis-toggle.public { background: #e8f5e9; color: #2e7d32; }
     .vis-toggle.private { background: #ffeaea; color: #c62828; }
     .vis-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
-
     .btn-add { padding: 6px 16px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-add:hover { border-color: var(--gold); color: var(--gold); }
-
     .section-body { padding: 16px 28px 20px; }
     .section-body.hidden-section { opacity: 0.45; pointer-events: none; position: relative; }
     .section-body.hidden-section::after { content: "🔒 Hidden from public profile"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.92); padding: 8px 18px; border-radius: 20px; font-size: 12px; color: var(--muted); font-weight: 600; pointer-events: none; border: 1px solid var(--border); white-space: nowrap; }
-
-    /* ABOUT */
     .about-text { font-size: 14px; color: var(--text); line-height: 1.75; }
     .about-placeholder { font-size: 14px; color: var(--muted); font-style: italic; }
-
-    /* ITEMS */
     .exp-item { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid #f5f0ea; }
     .exp-item:last-child { border-bottom: none; padding-bottom: 0; }
     .exp-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--gold-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
@@ -102,15 +82,11 @@
     .exp-actions { display: flex; gap: 4px; margin-left: auto; flex-shrink: 0; }
     .btn-icon { background: none; border: none; cursor: pointer; font-size: 14px; padding: 5px 8px; border-radius: 8px; transition: 0.15s; }
     .btn-icon:hover { background: #f5f0ea; }
-
-    /* SKILLS */
     .skills-grid { display: flex; flex-wrap: wrap; gap: 8px; }
     .skill-tag { background: var(--gold-light); color: var(--dark); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; border: 1px solid #f0d89a; }
     .skill-tag .remove-skill { cursor: pointer; color: var(--muted); font-size: 11px; transition: 0.15s; }
     .skill-tag .remove-skill:hover { color: #f44336; }
     .empty-state { text-align: center; padding: 28px; color: var(--muted); font-size: 13px; }
-
-    /* VISIBILITY BANNER */
     .vis-banner { background: linear-gradient(135deg, var(--gold-light), #fff); border: 1px solid #f0d89a; border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
     .vis-banner-text { font-size: 13px; color: var(--dark); font-weight: 500; display: flex; align-items: center; gap: 8px; }
     .vis-banner-actions { display: flex; gap: 8px; }
@@ -119,8 +95,6 @@
     .vis-banner-btn.primary:hover { background: var(--dark); }
     .vis-banner-btn.secondary { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
     .vis-banner-btn.secondary:hover { border-color: var(--dark); color: var(--dark); }
-
-    /* MODALS */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
     .modal-box { background: white; border-radius: 20px; padding: 28px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
     .modal-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
@@ -135,8 +109,6 @@
     .btn-cancel { padding: 10px 22px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; font-family: 'Poppins', sans-serif; font-size: 13px; cursor: pointer; color: var(--muted); }
     .btn-save { padding: 10px 26px; border-radius: 20px; border: none; background: var(--gold); color: white; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
     .btn-save:hover { background: var(--dark); }
-
-    /* PUBLIC PREVIEW MODAL */
     .preview-modal { max-width: 680px; }
     .preview-header { background: linear-gradient(135deg, var(--dark), var(--gold)); color: white; margin: -28px -28px 22px; padding: 20px 28px; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center; }
     .preview-header h3 { font-size: 16px; font-weight: 700; }
@@ -145,10 +117,8 @@
     .preview-section-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px; display: flex; justify-content: space-between; }
     .preview-hidden-badge { background: #ffeaea; color: #c62828; font-size: 10px; padding: 2px 8px; border-radius: 10px; text-transform: none; letter-spacing: 0; font-weight: 600; }
     .preview-visible-badge { background: #e8f5e9; color: #2e7d32; font-size: 10px; padding: 2px 8px; border-radius: 10px; text-transform: none; letter-spacing: 0; font-weight: 600; }
-
     input[type="file"] { display: none; }
     footer { background: var(--dark); color: white; text-align: center; padding: 18px; font-size: 13px; margin-top: 20px; }
-
     @media (max-width: 640px) {
       nav { padding: 12px 16px; }
       .nav-links { display: none; }
@@ -180,7 +150,6 @@
 
 <div class="main">
 
-  <!-- VISIBILITY BANNER -->
   <div class="vis-banner">
     <div class="vis-banner-text">
       👁️ <span>Control what others see on your public profile. Toggle sections below.</span>
@@ -192,11 +161,9 @@
     </div>
   </div>
 
-  <!-- PROFILE CARD -->
   <div class="profile-card">
     <div class="profile-accent-bar"></div>
     <div class="profile-header">
-
       <div class="avatar-section">
         <div class="profile-pic" id="profilePic">
           <img id="profilePicImg" alt="">
@@ -208,7 +175,6 @@
         </div>
       </div>
       <input type="file" id="picInput" accept="image/*" onchange="uploadProfilePic(this)">
-
       <div class="profile-info">
         <div class="profile-name-row">
           <div class="profile-name" id="profileName">Loading...</div>
@@ -222,7 +188,6 @@
           <span class="meta-pill email">✉️ <span id="metaEmailVal">—</span></span>
         </div>
       </div>
-
       <div class="profile-actions">
         <button class="btn-edit" onclick="openEditProfile()">✏️ Edit Profile</button>
         <button class="btn-preview" onclick="openPreviewModal()">👁️ Public View</button>
@@ -230,16 +195,11 @@
     </div>
   </div>
 
-  <!-- ABOUT -->
   <div class="section-card">
     <div class="section-header">
-      <div class="section-header-left">
-        <div class="section-title">About</div>
-      </div>
+      <div class="section-header-left"><div class="section-title">About</div></div>
       <div class="section-header-right">
-        <button class="vis-toggle" id="vis-about" onclick="toggleVisibility('about')">
-          <span class="vis-dot"></span><span class="vis-label">Public</span>
-        </button>
+        <button class="vis-toggle" id="vis-about" onclick="toggleVisibility('about')"><span class="vis-dot"></span><span class="vis-label">Public</span></button>
         <button class="btn-add" onclick="openAboutModal()">✏️ Edit</button>
       </div>
     </div>
@@ -248,100 +208,70 @@
     </div>
   </div>
 
-  <!-- EXPERIENCE -->
   <div class="section-card">
     <div class="section-header">
       <div class="section-header-left"><div class="section-title">💼 Experience</div></div>
       <div class="section-header-right">
-        <button class="vis-toggle" id="vis-experience" onclick="toggleVisibility('experience')">
-          <span class="vis-dot"></span><span class="vis-label">Public</span>
-        </button>
+        <button class="vis-toggle" id="vis-experience" onclick="toggleVisibility('experience')"><span class="vis-dot"></span><span class="vis-label">Public</span></button>
         <button class="btn-add" onclick="openExpModal()">+ Add</button>
       </div>
     </div>
-    <div class="section-body" id="expBody">
-      <div id="experienceList"><div class="empty-state">No experience added yet.</div></div>
-    </div>
+    <div class="section-body" id="expBody"><div id="experienceList"><div class="empty-state">No experience added yet.</div></div></div>
   </div>
 
-  <!-- INTERNSHIPS -->
   <div class="section-card">
     <div class="section-header">
       <div class="section-header-left"><div class="section-title">🧪 Internships</div></div>
       <div class="section-header-right">
-        <button class="vis-toggle" id="vis-internships" onclick="toggleVisibility('internships')">
-          <span class="vis-dot"></span><span class="vis-label">Public</span>
-        </button>
+        <button class="vis-toggle" id="vis-internships" onclick="toggleVisibility('internships')"><span class="vis-dot"></span><span class="vis-label">Public</span></button>
         <button class="btn-add" onclick="openInternModal()">+ Add</button>
       </div>
     </div>
-    <div class="section-body" id="internBody">
-      <div id="internshipList"><div class="empty-state">No internships added yet.</div></div>
-    </div>
+    <div class="section-body" id="internBody"><div id="internshipList"><div class="empty-state">No internships added yet.</div></div></div>
   </div>
 
-  <!-- EDUCATION -->
   <div class="section-card">
     <div class="section-header">
       <div class="section-header-left"><div class="section-title">🎓 Education</div></div>
       <div class="section-header-right">
-        <button class="vis-toggle" id="vis-education" onclick="toggleVisibility('education')">
-          <span class="vis-dot"></span><span class="vis-label">Public</span>
-        </button>
+        <button class="vis-toggle" id="vis-education" onclick="toggleVisibility('education')"><span class="vis-dot"></span><span class="vis-label">Public</span></button>
         <button class="btn-add" onclick="openEduModal()">+ Add</button>
       </div>
     </div>
-    <div class="section-body" id="eduBody">
-      <div id="educationList"><div class="empty-state">No education added yet.</div></div>
-    </div>
+    <div class="section-body" id="eduBody"><div id="educationList"><div class="empty-state">No education added yet.</div></div></div>
   </div>
 
-  <!-- PROJECTS -->
   <div class="section-card">
     <div class="section-header">
       <div class="section-header-left"><div class="section-title">🚀 Projects</div></div>
       <div class="section-header-right">
-        <button class="vis-toggle" id="vis-projects" onclick="toggleVisibility('projects')">
-          <span class="vis-dot"></span><span class="vis-label">Public</span>
-        </button>
+        <button class="vis-toggle" id="vis-projects" onclick="toggleVisibility('projects')"><span class="vis-dot"></span><span class="vis-label">Public</span></button>
         <button class="btn-add" onclick="openProjectModal()">+ Add</button>
       </div>
     </div>
-    <div class="section-body" id="projectBody">
-      <div id="projectList"><div class="empty-state">No projects added yet.</div></div>
-    </div>
+    <div class="section-body" id="projectBody"><div id="projectList"><div class="empty-state">No projects added yet.</div></div></div>
   </div>
 
-  <!-- SKILLS -->
   <div class="section-card">
     <div class="section-header">
       <div class="section-header-left"><div class="section-title">⚡ Skills</div></div>
       <div class="section-header-right">
-        <button class="vis-toggle" id="vis-skills" onclick="toggleVisibility('skills')">
-          <span class="vis-dot"></span><span class="vis-label">Public</span>
-        </button>
+        <button class="vis-toggle" id="vis-skills" onclick="toggleVisibility('skills')"><span class="vis-dot"></span><span class="vis-label">Public</span></button>
         <button class="btn-add" onclick="openSkillModal()">+ Add</button>
       </div>
     </div>
-    <div class="section-body" id="skillsBody">
-      <div id="skillsList"><div class="empty-state">No skills added yet.</div></div>
-    </div>
+    <div class="section-body" id="skillsBody"><div id="skillsList"><div class="empty-state">No skills added yet.</div></div></div>
   </div>
 
-  <!-- ACHIEVEMENTS -->
   <div class="section-card">
     <div class="section-header">
       <div class="section-header-left"><div class="section-title">🏆 Achievements & Certifications</div></div>
       <div class="section-header-right">
-        <button class="vis-toggle" id="vis-achievements" onclick="toggleVisibility('achievements')">
-          <span class="vis-dot"></span><span class="vis-label">Public</span>
-        </button>
+        <button class="vis-toggle" id="vis-achievements" onclick="toggleVisibility('achievements')"><span class="vis-dot"></span><span class="vis-label">Public</span></button>
         <button class="btn-add" onclick="openAchievModal()">+ Add</button>
       </div>
     </div>
-    <div class="section-body" id="achievBody">
-      <div id="achievList"><div class="empty-state">No achievements added yet.</div></div>
-    </div>
+    <div class="section-body" id="achievBody"><div id="achievList"><div class="empty-state">No achievements added yet.</div></div></div>
   </div>
 
 </div>
@@ -462,20 +392,17 @@
 <!-- PUBLIC PREVIEW MODAL -->
 <div class="modal-overlay" id="previewModal" style="display:none;">
   <div class="modal-box preview-modal">
-    <div class="preview-header">
-      <h3>👁️ Public Profile Preview</h3>
-      <span>This is what others see</span>
-    </div>
+    <div class="preview-header"><h3>👁️ Public Profile Preview</h3><span>This is what others see</span></div>
     <div id="previewContent"></div>
-    <div class="modal-actions">
-      <button class="btn-save" onclick="closeModal('previewModal')">Close</button>
-    </div>
+    <div class="modal-actions"><button class="btn-save" onclick="closeModal('previewModal')">Close</button></div>
   </div>
 </div>
 
 <footer>© 2026 Campus Connect | All Rights Reserved</footer>
 
 <script>
+  const BASE_URL = "http://43.205.171.240";
+
   var user = JSON.parse(sessionStorage.getItem("user") || "null");
   if (!user) { window.location.href = "../login.html"; }
 
@@ -484,42 +411,69 @@
     profileData.visibility = { about: true, experience: true, internships: true, education: true, projects: true, skills: true, achievements: true };
   }
   var editingExp=-1, editingIntern=-1, editingEdu=-1, editingProj=-1, editingAchiev=-1;
-
   var SECTIONS = ['about','experience','internships','education','projects','skills','achievements'];
 
-  // ── VISIBILITY ──
-  function toggleVisibility(section) {
-    profileData.visibility[section] = !profileData.visibility[section];
-    save();
-    updateVisToggle(section);
+  // ── LOAD PROFILE FROM DB ON START ──
+  async function loadProfileFromDB() {
+    try {
+      var res = await fetch(BASE_URL + "/users/profile/" + user.id);
+      var data = await res.json();
+      if (data.success && data.profile && Object.keys(data.profile).length > 0) {
+        var p = data.profile;
+        if (p.headline)     profileData.headline     = p.headline;
+        if (p.about)        profileData.about        = p.about;
+        if (p.experience && p.experience.length)   profileData.experience   = p.experience;
+        if (p.internships && p.internships.length) profileData.internships  = p.internships;
+        if (p.education && p.education.length)     profileData.education    = p.education;
+        if (p.projects && p.projects.length)       profileData.projects     = p.projects;
+        if (p.skills && p.skills.length)           profileData.skills       = p.skills;
+        if (p.achievements && p.achievements.length) profileData.achievements = p.achievements;
+        if (p.profile_pic)  profileData.profilePic   = p.profile_pic;
+        if (p.visibility && Object.keys(p.visibility).length) profileData.visibility = p.visibility;
+        localStorage.setItem("cc_profile_" + user.id, JSON.stringify(profileData));
+      }
+    } catch(e) { console.log("Could not load profile from DB:", e); }
+    init();
   }
 
+  // ── SAVE TO BOTH LOCALSTORAGE AND DATABASE ──
+  function save() {
+    localStorage.setItem("cc_profile_" + user.id, JSON.stringify(profileData));
+    fetch(BASE_URL + "/users/profile/save", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        user_id:      user.id,
+        headline:     profileData.headline     || null,
+        about:        profileData.about        || null,
+        experience:   profileData.experience   || [],
+        internships:  profileData.internships  || [],
+        education:    profileData.education    || [],
+        projects:     profileData.projects     || [],
+        skills:       profileData.skills       || [],
+        achievements: profileData.achievements || [],
+        profile_pic:  profileData.profilePic   || null,
+        visibility:   profileData.visibility   || {}
+      })
+    }).catch(function(e){ console.log("Profile sync error:", e); });
+  }
+
+  // ── VISIBILITY ──
+  function toggleVisibility(section) { profileData.visibility[section] = !profileData.visibility[section]; save(); updateVisToggle(section); }
   function updateVisToggle(section) {
     var btn = document.getElementById('vis-' + section);
     var body = document.getElementById(sectionBodyId(section));
     var isPublic = profileData.visibility[section];
     btn.className = 'vis-toggle ' + (isPublic ? 'public' : 'private');
     btn.querySelector('.vis-label').textContent = isPublic ? 'Public' : 'Private';
-    if (body) {
-      if (isPublic) body.classList.remove('hidden-section');
-      else body.classList.add('hidden-section');
-    }
+    if (body) { if (isPublic) body.classList.remove('hidden-section'); else body.classList.add('hidden-section'); }
   }
-
   function sectionBodyId(section) {
     var map = { about:'aboutBody', experience:'expBody', internships:'internBody', education:'eduBody', projects:'projectBody', skills:'skillsBody', achievements:'achievBody' };
     return map[section];
   }
-
-  function setAllVisibility(val) {
-    SECTIONS.forEach(function(s) { profileData.visibility[s] = val; });
-    save();
-    SECTIONS.forEach(updateVisToggle);
-  }
-
-  function updateAllToggles() {
-    SECTIONS.forEach(updateVisToggle);
-  }
+  function setAllVisibility(val) { SECTIONS.forEach(function(s) { profileData.visibility[s] = val; }); save(); SECTIONS.forEach(updateVisToggle); }
+  function updateAllToggles() { SECTIONS.forEach(updateVisToggle); }
 
   // ── PUBLIC PREVIEW ──
   function openPreviewModal() {
@@ -527,7 +481,7 @@
     var html = '<div style="margin-bottom:18px;">';
     html += '<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">';
     if (profileData.profilePic) {
-      html += '<div style="width:60px;height:60px;border-radius:50%;overflow:hidden;border:2px solid var(--gold-light);"><img src="'+profileData.profilePic+'" style="width:100%;height:100%;object-fit:cover;"></div>';
+      html += '<div style="width:60px;height:60px;border-radius:50%;overflow:hidden;border:2px solid var(--gold-light);"><img src="'+profileData.profilePic+'" style="width:100%;height:100%;object-fit:cover;object-position:center top;"></div>';
     } else {
       var ini = name.split(" ").map(function(w){return w[0];}).join("").toUpperCase().slice(0,2);
       html += '<div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--dark));display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:700;">'+ini+'</div>';
@@ -539,21 +493,15 @@
     html += '<span style="background:var(--gold-light);padding:3px 10px;border-radius:12px;color:var(--dark);">📅 Batch '+(profileData.batch||user.batch||"—")+'</span>';
     html += '<span style="background:var(--gold-light);padding:3px 10px;border-radius:12px;color:var(--dark);">📚 '+(profileData.branch||user.branch||"—")+'</span>';
     html += '</div></div>';
-
     var sectionNames = { about:'About', experience:'Experience', internships:'Internships', education:'Education', projects:'Projects', skills:'Skills', achievements:'Achievements' };
     SECTIONS.forEach(function(s) {
       var isPublic = profileData.visibility[s];
       var badge = isPublic ? '<span class="preview-visible-badge">✓ Visible</span>' : '<span class="preview-hidden-badge">🔒 Hidden</span>';
-      html += '<div class="preview-section">';
-      html += '<div class="preview-section-title">'+sectionNames[s]+' '+badge+'</div>';
-      if (!isPublic) {
-        html += '<div style="font-size:13px;color:var(--muted);font-style:italic;">This section is hidden from your public profile.</div>';
-      } else {
-        html += renderPreviewSection(s);
-      }
+      html += '<div class="preview-section"><div class="preview-section-title">'+sectionNames[s]+' '+badge+'</div>';
+      if (!isPublic) { html += '<div style="font-size:13px;color:var(--muted);font-style:italic;">This section is hidden from your public profile.</div>'; }
+      else { html += renderPreviewSection(s); }
       html += '</div>';
     });
-
     document.getElementById('previewContent').innerHTML = html;
     document.getElementById('previewModal').style.display = 'flex';
   }
@@ -585,31 +533,23 @@
     document.getElementById("metaBatchVal").textContent = "Batch " + (profileData.batch || user.batch || "—");
     document.getElementById("metaBranchVal").textContent = profileData.branch || user.branch || "—";
     document.getElementById("metaEmailVal").textContent = user.email || "—";
-
     var st = user.verification_status, tp = user.account_type;
     var bc = (tp==="verified"&&st==="approved") ? "approved" : tp==="general" ? "general" : "pending";
     var bl = (tp==="verified"&&st==="approved") ? "✓ Verified" : tp==="general" ? "General" : "⏳ Pending";
     document.getElementById("profileBadge").className = "vbadge " + bc;
     document.getElementById("profileBadge").textContent = bl;
-
     if (profileData.profilePic) {
       document.getElementById("profilePicImg").src = profileData.profilePic;
       document.getElementById("profilePicImg").style.display = "block";
       document.getElementById("profilePicInitials").style.display = "none";
       document.getElementById("picRemoveBtn").style.display = "flex";
-      document.getElementById("navAvatar").innerHTML = '<img src="'+profileData.profilePic+'">';
+      document.getElementById("navAvatar").innerHTML = '<img src="'+profileData.profilePic+'" style="object-position:center top;">';
     }
-
-    if (profileData.about) {
-      document.getElementById("aboutContent").innerHTML = '<div class="about-text">'+escHtml(profileData.about)+'</div>';
-    }
-
+    if (profileData.about) { document.getElementById("aboutContent").innerHTML = '<div class="about-text">'+escHtml(profileData.about)+'</div>'; }
     renderExperience(); renderInternships(); renderEducation();
     renderProjects(); renderSkills(); renderAchievements();
     updateAllToggles();
   }
-
-  function save() { localStorage.setItem("cc_profile_" + user.id, JSON.stringify(profileData)); }
 
   // ── UPLOADS ──
   function uploadProfilePic(input) {
@@ -622,7 +562,7 @@
       document.getElementById("profilePicImg").style.display = "block";
       document.getElementById("profilePicInitials").style.display = "none";
       document.getElementById("picRemoveBtn").style.display = "flex";
-      document.getElementById("navAvatar").innerHTML = '<img src="'+e.target.result+'">';
+      document.getElementById("navAvatar").innerHTML = '<img src="'+e.target.result+'" style="object-position:center top;">';
     };
     r.readAsDataURL(file);
   }
@@ -651,11 +591,11 @@
   }
   function saveProfile() {
     profileData.full_name = document.getElementById("editName").value.trim();
-    profileData.headline = document.getElementById("editHeadline").value.trim();
+    profileData.headline  = document.getElementById("editHeadline").value.trim();
     profileData.institute = document.getElementById("editInstitute").value.trim();
-    profileData.batch = document.getElementById("editBatch").value.trim();
-    profileData.degree = document.getElementById("editDegree").value.trim();
-    profileData.branch = document.getElementById("editBranch").value.trim();
+    profileData.batch     = document.getElementById("editBatch").value.trim();
+    profileData.degree    = document.getElementById("editDegree").value.trim();
+    profileData.branch    = document.getElementById("editBranch").value.trim();
     save(); closeModal("editProfileModal"); init();
   }
 
@@ -663,7 +603,7 @@
   function openAboutModal() { document.getElementById("aboutInput").value = profileData.about||""; document.getElementById("aboutModal").style.display="flex"; }
   function saveAbout() {
     profileData.about = document.getElementById("aboutInput").value.trim(); save(); closeModal("aboutModal");
-    document.getElementById("aboutContent").innerHTML = profileData.about ? '<div class="about-text">'+escHtml(profileData.about)+'</div>' : '<div class="about-placeholder">Tell others about yourself — your interests, goals, and what you\'re looking for.</div>';
+    document.getElementById("aboutContent").innerHTML = profileData.about ? '<div class="about-text">'+escHtml(profileData.about)+'</div>' : '<div class="about-placeholder">Tell others about yourself.</div>';
   }
 
   // ── EXPERIENCE ──
@@ -819,7 +759,8 @@
   document.querySelectorAll(".modal-overlay").forEach(function(m){m.addEventListener("click",function(e){if(e.target===m)m.style.display="none";});});
   document.getElementById("skillInput").addEventListener("keydown",function(e){if(e.key==="Enter")saveSkill();});
 
-  init();
+  // Load from DB first, then init
+  loadProfileFromDB();
 </script>
 </body>
 </html>

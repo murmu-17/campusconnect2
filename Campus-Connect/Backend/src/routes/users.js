@@ -5,7 +5,7 @@ const db = require("../db/connection");
 // ================= ALL USERS (admin/general use) =================
 router.get("/", (req, res) => {
   const { institute, batch, branch, degree, account_type } = req.query;
-  let query = "SELECT id,full_name,email,phone,institute,batch,degree,branch,account_type,verification_status FROM users WHERE 1=1";
+  let query = "SELECT id,full_name,email,phone,institute,batch,degree,branch,account_type,verification_status,is_suspended FROM users WHERE 1=1";
   const params = [];
 
   if (account_type) { query += " AND account_type=?"; params.push(account_type); }
@@ -23,9 +23,9 @@ router.get("/", (req, res) => {
 
 // ================= NETWORK SEARCH (only enabled institutes) =================
 router.get("/search", (req, res) => {
-  const { institute, batch, branch, degree, name, viewer_id } = req.query;
+  const { institute, batch, branch, degree, name, viewer_id, user_id } = req.query;
   let query =
-    "SELECT u.id,u.full_name,u.institute,u.batch,u.degree,u.branch,u.account_type " +
+    "SELECT u.id,u.full_name,u.institute,u.batch,u.degree,u.branch,u.account_type,u.verification_status " +
     "FROM users u WHERE u.verification_status='approved' AND u.account_type='verified'" +
     " AND u.institute IN (SELECT name FROM institutes WHERE is_enabled=1)";
   const params = [];
@@ -34,18 +34,91 @@ router.get("/search", (req, res) => {
     query += " AND u.id NOT IN (SELECT blocked_id FROM blocks WHERE blocker_id=? UNION SELECT blocker_id FROM blocks WHERE blocked_id=?)";
     params.push(viewer_id, viewer_id);
   }
+  if (user_id)   { query += " AND u.id=?";             params.push(parseInt(user_id)); }
   if (name)      { query += " AND u.full_name LIKE ?"; params.push("%" + name + "%"); }
   if (institute) { query += " AND u.institute=?";      params.push(institute); }
   if (batch)     { query += " AND u.batch=?";          params.push(parseInt(batch)); }
   if (branch)    { query += " AND u.branch LIKE ?";    params.push("%" + branch + "%"); }
   if (degree)    { query += " AND u.degree=?";         params.push(degree); }
-  if (viewer_id) { query += " AND u.id!=?";            params.push(viewer_id); }
+  if (viewer_id && !user_id) { query += " AND u.id!=?"; params.push(viewer_id); }
 
   query += " ORDER BY u.full_name ASC LIMIT 50";
   db.query(query, params, (err, results) => {
     if (err) return res.json({ success: false, message: "DB error: " + err.message });
     res.json({ success: true, users: results });
   });
+});
+
+// ================= SAVE PROFILE =================
+router.post("/profile/save", (req, res) => {
+  const { user_id, headline, about, experience, internships, education, projects, skills, achievements, profile_pic, visibility } = req.body;
+  if (!user_id) return res.json({ success: false, message: "User ID required" });
+
+  db.query(
+    `INSERT INTO user_profiles (user_id, headline, about, experience, internships, education, projects, skills, achievements, profile_pic, visibility)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE
+       headline=VALUES(headline),
+       about=VALUES(about),
+       experience=VALUES(experience),
+       internships=VALUES(internships),
+       education=VALUES(education),
+       projects=VALUES(projects),
+       skills=VALUES(skills),
+       achievements=VALUES(achievements),
+       profile_pic=VALUES(profile_pic),
+       visibility=VALUES(visibility)`,
+    [
+      user_id,
+      headline || null,
+      about || null,
+      JSON.stringify(experience || []),
+      JSON.stringify(internships || []),
+      JSON.stringify(education || []),
+      JSON.stringify(projects || []),
+      JSON.stringify(skills || []),
+      JSON.stringify(achievements || []),
+      profile_pic || null,
+      JSON.stringify(visibility || {})
+    ],
+    (err) => {
+      if (err) return res.json({ success: false, message: "DB error: " + err.message });
+      res.json({ success: true, message: "Profile saved" });
+    }
+  );
+});
+
+// ================= GET PROFILE =================
+router.get("/profile/:user_id", (req, res) => {
+  const { user_id } = req.params;
+  db.query(
+    "SELECT * FROM user_profiles WHERE user_id=?",
+    [user_id],
+    (err, results) => {
+      if (err) return res.json({ success: false, message: "DB error" });
+      if (results.length === 0) return res.json({ success: true, profile: {} });
+      var p = results[0];
+      try {
+        res.json({
+          success: true,
+          profile: {
+            headline:     p.headline,
+            about:        p.about,
+            experience:   JSON.parse(p.experience   || "[]"),
+            internships:  JSON.parse(p.internships  || "[]"),
+            education:    JSON.parse(p.education    || "[]"),
+            projects:     JSON.parse(p.projects     || "[]"),
+            skills:       JSON.parse(p.skills       || "[]"),
+            achievements: JSON.parse(p.achievements || "[]"),
+            profile_pic:  p.profile_pic,
+            visibility:   JSON.parse(p.visibility   || "{}")
+          }
+        });
+      } catch(e) {
+        res.json({ success: true, profile: {} });
+      }
+    }
+  );
 });
 
 module.exports = router;
