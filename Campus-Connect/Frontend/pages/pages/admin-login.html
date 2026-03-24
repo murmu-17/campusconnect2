@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login | Campus Connect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f3ef 0%, #e8e4dc 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .box {
+      background: white;
+      border-radius: 20px;
+      padding: 44px 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.10);
+      text-align: center;
+    }
+    .icon { font-size: 48px; margin-bottom: 10px; }
+    h1 { color: #4a3f35; font-size: 22px; margin-bottom: 4px; }
+    .subtitle { color: #8b7d6b; font-size: 13px; margin-bottom: 30px; }
+    label {
+      display: block;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4a3f35;
+      margin-bottom: 5px;
+      margin-top: 14px;
+    }
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #e0d5c7;
+      border-radius: 30px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s;
+      color: #4a3f35;
+      background: #fdfaf7;
+    }
+    input:focus { border-color: #b37a0f; background: white; }
+    .password-wrapper { position: relative; }
+    .password-wrapper input { padding-right: 48px; }
+    .eye-btn {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #8b7d6b;
+      padding: 0;
+    }
+    .eye-btn:hover { color: #b37a0f; }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 30px;
+      border: none;
+      background: #b37a0f;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 24px;
+    }
+    .btn:hover { background: #4b2e05; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .error {
+      color: #f44336;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      background: #fff0f0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-align: left;
+    }
+    .back-link { margin-top: 20px; font-size: 13px; }
+    .back-link a { color: #b37a0f; text-decoration: none; }
+    .back-link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <div class="icon">&#128272;</div>
+  <h1>Admin Login</h1>
+  <p class="subtitle">Campus Connect Administration</p>
+
+  <label>Admin Email</label>
+  <input type="email" id="adminEmail" placeholder="admin@campusconnect.in" autocomplete="username">
+
+  <label>Password</label>
+  <div class="password-wrapper">
+    <input type="password" id="adminPassword" placeholder="Enter admin password" autocomplete="current-password">
+    <button class="eye-btn" onclick="togglePassword()" id="eyeBtn" type="button">&#128065;</button>
+  </div>
+
+  <p class="error" id="errorMsg"></p>
+
+  <button class="btn" id="loginBtn" onclick="adminLogin()">Login as Admin</button>
+
+  <div class="back-link">
+    <a href="../index.html">&#8592; Back to Home</a>
+  </div>
+</div>
+
+<script>
+  const BASE_URL = "https://conncam.in";
+
+  // Already logged in? Go straight to dashboard
+  if (sessionStorage.getItem("adminData")) {
+    window.location.href = "admin.html";
+  }
+
+  function togglePassword() {
+    var input = document.getElementById("adminPassword");
+    var btn   = document.getElementById("eyeBtn");
+    if (input.type === "password") { input.type = "text";     btn.innerHTML = "&#128064;"; }
+    else                           { input.type = "password"; btn.innerHTML = "&#128065;"; }
+  }
+
+  async function adminLogin() {
+    var email    = document.getElementById("adminEmail").value.trim();
+    var password = document.getElementById("adminPassword").value;
+    var btn      = document.getElementById("loginBtn");
+    var errorMsg = document.getElementById("errorMsg");
+
+    if (!email || !password) {
+      errorMsg.textContent = "Please fill in all fields.";
+      errorMsg.style.display = "block";
+      return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = "Logging in...";
+    errorMsg.style.display = "none";
+
+    try {
+      var res  = await fetch(BASE_URL + "/auth/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password })
+      });
+      var data = await res.json();
+
+      if (data.success) {
+        sessionStorage.setItem("adminData", JSON.stringify(data.admin));
+        window.location.href = "admin.html";
+      } else {
+        errorMsg.textContent   = data.message || "Invalid credentials. Please try again.";
+        errorMsg.style.display = "block";
+        btn.disabled    = false;
+        btn.textContent = "Login as Admin";
+      }
+    } catch (err) {
+      errorMsg.textContent   = "Network error. Is the server running on port 5001?";
+      errorMsg.style.display = "block";
+      btn.disabled    = false;
+      btn.textContent = "Login as Admin";
+    }
+  }
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") adminLogin();
+  });
+</script>
+
+</body>
+</html>

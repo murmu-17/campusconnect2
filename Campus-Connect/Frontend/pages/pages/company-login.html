@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Company Login | Campus Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/company.css">
+</head>
+<body>
+
+<div class="card">
+  <div class="icon">🏢</div>
+  <h2>Company Login</h2>
+  <p class="subtitle">Access your Campus Connect recruiter dashboard</p>
+
+  <label>Company Email</label>
+  <input type="email" id="companyLoginEmail" placeholder="company@company.com" autocomplete="username">
+
+  <label>Password</label>
+  <div class="password-wrapper">
+    <input type="password" id="companyLoginPassword" placeholder="Enter password" autocomplete="current-password">
+    <button class="eye-btn" onclick="togglePassword()" id="eyeBtn" type="button">👁️</button>
+  </div>
+
+  <p class="error" id="errorMsg"></p>
+
+  <button class="btn" id="loginBtn" onclick="companyLogin()">Login →</button>
+
+  <hr class="divider">
+
+  <div class="links">
+    New company? <a href="company-signup.html">Sign up here</a>
+  </div>
+
+  <div class="back-link">
+    <a href="../index.html">← Back to Home</a>
+  </div>
+</div>
+
+<script src="../Js/company-auth.js"></script>
+<script>
+  function togglePassword() {
+    var input = document.getElementById("companyLoginPassword");
+    var btn   = document.getElementById("eyeBtn");
+    if (input.type === "password") { input.type = "text";     btn.textContent = "🙈"; }
+    else                           { input.type = "password"; btn.textContent = "👁️"; }
+  }
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") companyLogin();
+  });
+</script>
+
+</body>
+</html>

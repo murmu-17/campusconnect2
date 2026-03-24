@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View Profile | Campus Connect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #b37a0f; --dark: #3e2c0f; --bg: #f4f1eb;
+      --white: #fff; --text: #4a3f35; --muted: #8b7d6b; --border: #e0d5c7;
+      --gold-light: #fff8e8; --radius: 16px;
+    }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    nav { background: var(--white); padding: 14px 60px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 200; }
+    .nav-brand h2 { color: var(--gold); font-size: 18px; font-weight: 700; cursor: pointer; }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500; transition: 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); font-weight: 600; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 700; overflow: hidden; }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+    .btn-logout { padding: 7px 18px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: 0.2s; }
+    .btn-logout:hover { border-color: #f44336; color: #f44336; }
+    .back-bar { max-width: 860px; margin: 0 auto; padding: 18px 20px 0; }
+    .btn-back { background: none; border: none; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; padding: 6px 0; }
+    .btn-back:hover { color: var(--gold); }
+    .main { max-width: 860px; margin: 0 auto; padding: 16px 20px 60px; display: flex; flex-direction: column; gap: 16px; }
+    .state-card { background: var(--white); border-radius: var(--radius); padding: 64px 40px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+    .state-card .state-icon { font-size: 52px; margin-bottom: 16px; }
+    .state-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .state-card p { font-size: 14px; color: var(--muted); }
+    .profile-card { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+    .profile-accent-bar { height: 6px; background: linear-gradient(90deg, var(--dark) 0%, var(--gold) 50%, #e8c870 100%); }
+    .profile-header { padding: 32px 36px 28px; display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: start; }
+    .profile-pic { width: 104px; height: 104px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 34px; font-weight: 700; overflow: hidden; box-shadow: 0 0 0 4px var(--gold-light), 0 4px 20px rgba(179,122,15,0.25); flex-shrink: 0; }
+    .profile-pic img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+    .profile-info { min-width: 0; }
+    .profile-name-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+    .profile-name { font-size: 24px; font-weight: 700; color: var(--text); }
+    .vbadge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .vbadge.approved { background: #e8f5e9; color: #2e7d32; }
+    .vbadge.pending { background: #fff8e1; color: #f59e0b; }
+    .vbadge.general { background: #e3f2fd; color: #1565c0; }
+    .profile-headline { font-size: 14px; color: var(--muted); margin-bottom: 14px; }
+    .profile-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .meta-pill { display: inline-flex; align-items: center; gap: 5px; background: var(--gold-light); border: 1px solid #f0d89a; border-radius: 20px; padding: 5px 12px; font-size: 12px; color: var(--dark); font-weight: 500; }
+    .section-card { background: var(--white); border-radius: var(--radius); box-shadow: 0 4px 20px rgba(0,0,0,0.07); overflow: hidden; }
+    .section-header { padding: 18px 28px 14px; border-bottom: 1px solid #f5f0ea; }
+    .section-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .section-body { padding: 16px 28px 22px; }
+    .about-text { font-size: 14px; color: var(--text); line-height: 1.8; }
+    .exp-item { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid #f5f0ea; }
+    .exp-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .exp-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--gold-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .exp-body { flex: 1; min-width: 0; }
+    .exp-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .exp-company { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .exp-date { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .exp-desc { font-size: 13px; color: var(--text); margin-top: 6px; line-height: 1.55; }
+    .skills-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .skill-tag { background: var(--gold-light); color: var(--dark); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1px solid #f0d89a; }
+    footer { background: var(--dark); color: white; text-align: center; padding: 18px; font-size: 13px; }
+    @media (max-width: 640px) {
+      nav { padding: 12px 16px; } .nav-links { display: none; }
+      .back-bar, .main { padding-left: 12px; padding-right: 12px; }
+      .profile-header { grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 24px 16px; }
+      .profile-meta { justify-content: center; }
+      .section-header { padding: 14px 18px 12px; } .section-body { padding: 14px 18px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand"><h2 onclick="window.location.href='dashboard.html'">🎓 Campus Connect</h2></div>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="network.html" class="active">Network</a></li>
+    <li><a href="chat.html">Messages</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="nav-avatar" id="navAvatar">?</div>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="back-bar">
+  <button class="btn-back" onclick="history.back()">← Back to Network</button>
+</div>
+
+<div class="main" id="mainContent">
+  <div class="state-card">
+    <div class="state-icon">⏳</div>
+    <h3>Loading profile...</h3>
+    <p>Please wait</p>
+  </div>
+</div>
+
+<footer>© 2026 Campus Connect | All Rights Reserved</footer>
+
+<script>
+  const BASE_URL = "https://conncam.in";
+
+  var currentUser = JSON.parse(sessionStorage.getItem("user") || "null");
+  if (!currentUser) { window.location.href = "login.html"; }
+
+  var myIni = (currentUser.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+  document.getElementById("navAvatar").textContent = myIni;
+
+  // Load current user's own profile pic for nav avatar
+  var myProfile = JSON.parse(localStorage.getItem("cc_profile_" + currentUser.id) || "{}");
+  if (myProfile.profilePic) {
+    document.getElementById("navAvatar").innerHTML = '<img src="'+myProfile.profilePic+'" style="object-position:center top;">';
+  }
+
+  var params   = new URLSearchParams(window.location.search);
+  var targetId = parseInt(params.get("id"));
+
+  if (!targetId) {
+    showError("No profile ID specified.");
+  } else if (targetId === currentUser.id) {
+    window.location.href = "profile.html";
+  } else {
+    loadProfile(targetId);
+  }
+
+  async function loadProfile(userId) {
+    try {
+      // Load user basic info
+      var res  = await fetch(BASE_URL + "/users/search?viewer_id=" + currentUser.id + "&user_id=" + userId);
+      var data = await res.json();
+      if (!data.success || !data.users || data.users.length === 0) {
+        showError("This profile could not be found or is not available.");
+        return;
+      }
+      var user = data.users.find(function(u){ return u.id === userId; }) || data.users[0];
+
+      // Load profile data from database
+      var profRes  = await fetch(BASE_URL + "/users/profile/" + userId);
+      var profData = await profRes.json();
+      var dbProfile = (profData.success && profData.profile) ? profData.profile : {};
+
+      renderProfile(user, dbProfile);
+    } catch(e) {
+      showError("Could not load profile. Please check your connection.");
+    }
+  }
+
+  function renderProfile(u, dbProfile) {
+    // Merge db profile with any local data as fallback
+    var profileData = dbProfile || {};
+
+    var vis  = profileData.visibility || {};
+    var name = u.full_name || "Unknown";
+    var initials = name.split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+    var tp = u.account_type, st = u.verification_status;
+    var bc = (tp==="verified"&&st==="approved") ? "approved" : tp==="general" ? "general" : "pending";
+    var bl = (tp==="verified"&&st==="approved") ? "✓ Verified" : tp==="general" ? "General" : "⏳ Pending";
+
+    var html = "";
+    html += '<div class="profile-card"><div class="profile-accent-bar"></div>';
+    html += '<div class="profile-header">';
+
+    // Profile pic
+    var picHtml = profileData.profile_pic
+      ? '<img src="'+escHtml(profileData.profile_pic)+'" style="object-position:center top;">'
+      : initials;
+    html += '<div class="profile-pic">' + picHtml + '</div>';
+
+    html += '<div class="profile-info">';
+    html += '<div class="profile-name-row"><div class="profile-name">'+escHtml(name)+'</div><span class="vbadge '+bc+'">'+bl+'</span></div>';
+    var hl = profileData.headline || (u.degree ? u.degree + " @ " + (u.institute||"") : "");
+    if (hl) html += '<div class="profile-headline">'+escHtml(hl)+'</div>';
+    html += '<div class="profile-meta">';
+    html += '<span class="meta-pill">🏛️ '+escHtml(u.institute||"—")+'</span>';
+    html += '<span class="meta-pill">📅 Batch '+escHtml(String(u.batch||"—"))+'</span>';
+    html += '<span class="meta-pill">📚 '+escHtml(u.branch||"—")+'</span>';
+    html += '</div></div></div></div>';
+
+    if (vis.about !== false && profileData.about) {
+      html += sec("About", '<div class="about-text">'+escHtml(profileData.about)+'</div>');
+    }
+    if (vis.experience !== false && profileData.experience && profileData.experience.length) {
+      html += sec("💼 Experience", expItems(profileData.experience, "💼"));
+    }
+    if (vis.internships !== false && profileData.internships && profileData.internships.length) {
+      html += sec("🧪 Internships", expItems(profileData.internships, "🧪"));
+    }
+    if (vis.education !== false && profileData.education && profileData.education.length) {
+      html += sec("🎓 Education", eduItems(profileData.education));
+    }
+    if (vis.projects !== false && profileData.projects && profileData.projects.length) {
+      html += sec("🚀 Projects", projItems(profileData.projects));
+    }
+    if (vis.skills !== false && profileData.skills && profileData.skills.length) {
+      var sg = '<div class="skills-grid">'+profileData.skills.map(function(s){ return '<span class="skill-tag">'+escHtml(s)+'</span>'; }).join("")+'</div>';
+      html += sec("⚡ Skills", sg);
+    }
+    if (vis.achievements !== false && profileData.achievements && profileData.achievements.length) {
+      html += sec("🏆 Achievements & Certifications", achievItems(profileData.achievements));
+    }
+
+    // If no sections visible
+    if (html.indexOf('section-card') === -1) {
+      html += '<div class="state-card"><div class="state-icon">👤</div><h3>Profile is private</h3><p>This user has not made their profile sections public yet.</p></div>';
+    }
+
+    document.getElementById("mainContent").innerHTML = html;
+    document.title = name + " | Campus Connect";
+  }
+
+  function sec(title, body) {
+    return '<div class="section-card"><div class="section-header"><div class="section-title">'+title+'</div></div><div class="section-body">'+body+'</div></div>';
+  }
+  function expItems(arr, icon) {
+    return arr.map(function(e) {
+      var ds = "";
+      if (e.start) { var s = fmt(e.start), en = e.end ? fmt(e.end) : "Present"; ds = s + " – " + en; }
+      return '<div class="exp-item"><div class="exp-icon">'+icon+'</div><div class="exp-body"><div class="exp-title">'+escHtml(e.title)+'</div><div class="exp-company">'+escHtml(e.company||"")+'</div><div class="exp-date">'+ds+'</div>'+(e.desc?'<div class="exp-desc">'+escHtml(e.desc)+'</div>':"")+'</div></div>';
+    }).join("");
+  }
+  function eduItems(arr) {
+    return arr.map(function(e) {
+      var g = e.grade ? ' <span style="color:var(--gold);font-weight:600;">· '+escHtml(e.grade)+'</span>' : "";
+      return '<div class="exp-item"><div class="exp-icon">🎓</div><div class="exp-body"><div class="exp-title">'+escHtml(e.institution)+'</div><div class="exp-company">'+escHtml(e.degree||"")+g+'</div><div class="exp-date">'+(e.start||"")+(e.end?" – "+e.end:"")+'</div></div></div>';
+    }).join("");
+  }
+  function projItems(arr) {
+    return arr.map(function(e) {
+      var lk = e.link ? ' <a href="'+escHtml(e.link)+'" target="_blank" style="color:var(--gold);font-size:12px;margin-left:8px;">🔗 View</a>' : "";
+      return '<div class="exp-item"><div class="exp-icon">🚀</div><div class="exp-body"><div class="exp-title">'+escHtml(e.title)+lk+'</div>'+(e.tech?'<div class="exp-date" style="color:var(--gold);">🛠️ '+escHtml(e.tech)+'</div>':"")+'<div class="exp-date">'+(e.start||"")+(e.end?" – "+e.end:"")+'</div>'+(e.desc?'<div class="exp-desc">'+escHtml(e.desc)+'</div>':"")+'</div></div>';
+    }).join("");
+  }
+  function achievItems(arr) {
+    return arr.map(function(e) {
+      var dt = e.date ? fmt(e.date) : "";
+      return '<div class="exp-item"><div class="exp-icon">🏆</div><div class="exp-body"><div class="exp-title">'+escHtml(e.title)+'</div><div class="exp-company">'+escHtml(e.issuer||"")+'</div><div class="exp-date">'+dt+'</div>'+(e.desc?'<div class="exp-desc">'+escHtml(e.desc)+'</div>':"")+'</div></div>';
+    }).join("");
+  }
+  function fmt(ym) { try { return new Date(ym+"-01").toLocaleDateString("en-IN",{month:"short",year:"numeric"}); } catch(e){ return ym; } }
+  function showError(msg) {
+    document.getElementById("mainContent").innerHTML = '<div class="state-card"><div class="state-icon">😔</div><h3>Profile not found</h3><p>'+msg+'</p></div>';
+  }
+  function logout() { if (confirm("Logout?")) { sessionStorage.removeItem("user"); window.location.href = "../index.html"; } }
+  function escHtml(t) { if(!t)return""; return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+</script>
+</body>
+</html>

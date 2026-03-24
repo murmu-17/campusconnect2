@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Network | Campus Connect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #b37a0f; --dark: #3e2c0f; --bg: #f4f1eb;
+      --white: #fff; --text: #4a3f35; --muted: #8b7d6b; --border: #e0d5c7;
+    }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    nav {
+      background: var(--white); padding: 16px 60px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; }
+    .nav-brand h2 { color: var(--gold); font-size: 18px; font-weight: 700; }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500; transition: 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); font-weight: 600; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--dark));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn-logout {
+      padding: 7px 18px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: transparent; font-family: 'Poppins', sans-serif; font-size: 13px;
+      font-weight: 600; color: var(--muted); cursor: pointer; transition: 0.2s;
+    }
+    .btn-logout:hover { border-color: #f44336; color: #f44336; }
+
+    .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .page-header p { font-size: 14px; color: var(--muted); }
+
+    .search-bar {
+      background: var(--white); border-radius: 16px; padding: 20px 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05); margin-bottom: 20px;
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+    }
+    .search-field { flex: 1; min-width: 160px; }
+    .search-field label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .search-field input, .search-field select {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-family: 'Poppins', sans-serif; font-size: 13px;
+      outline: none; color: var(--text); background: #fdfaf7; transition: 0.2s;
+    }
+    .search-field input:focus, .search-field select:focus { border-color: var(--gold); background: white; }
+    .btn-search {
+      padding: 10px 24px; border-radius: 10px; border: none;
+      background: var(--gold); color: white; font-family: 'Poppins', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;
+      align-self: flex-end; white-space: nowrap;
+    }
+    .btn-search:hover { background: var(--dark); }
+    .btn-clear {
+      padding: 10px 18px; border-radius: 10px; border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted); font-family: 'Poppins', sans-serif;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; align-self: flex-end;
+    }
+    .btn-clear:hover { border-color: var(--gold); color: var(--gold); }
+
+    .results-info { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+    .results-info span { color: var(--gold); font-weight: 600; }
+
+    .people-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px;
+    }
+
+    .person-card {
+      background: var(--white); border-radius: 16px; padding: 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.05); transition: 0.25s;
+      border: 1.5px solid transparent; position: relative;
+    }
+    .person-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.10); border-color: var(--border); }
+
+    .person-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .person-avatar {
+      width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--dark));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 18px; font-weight: 700; overflow: hidden;
+      cursor: pointer; transition: 0.2s;
+    }
+    .person-avatar:hover { transform: scale(1.07); box-shadow: 0 4px 12px rgba(179,122,15,0.3); }
+    .person-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .person-name-link { cursor: pointer; }
+    .person-name-link:hover .person-name { color: var(--gold); }
+    .person-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; transition: 0.15s; }
+    .person-institute { font-size: 12px; color: var(--gold); font-weight: 500; }
+
+    .person-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .tag { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #f5f0e8; color: var(--text); }
+    .tag.batch { background: #e8f5e9; color: #2e7d32; }
+    .tag.branch { background: #e3f2fd; color: #1565c0; }
+    .tag.degree { background: #fff8e1; color: #f59e0b; }
+
+    .person-actions { display: flex; gap: 8px; }
+    .btn-msg {
+      flex: 1; padding: 9px; border-radius: 10px; border: none;
+      background: var(--gold); color: white; font-family: 'Poppins', sans-serif;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center;
+    }
+    .btn-msg:hover { background: var(--dark); }
+    .btn-more {
+      padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted); font-size: 16px; cursor: pointer; transition: 0.2s;
+    }
+    .btn-more:hover { border-color: var(--gold); color: var(--gold); }
+
+    .dropdown { position: relative; display: inline-block; }
+    .dropdown-menu {
+      display: none; position: fixed;
+      background: white; border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      min-width: 175px; z-index: 99999;
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .dropdown-menu.open { display: block; animation: fadeIn 0.15s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+    .dropdown-item {
+      padding: 11px 16px; font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: 0.15s; color: var(--text); display: flex; align-items: center; gap: 8px;
+      width: 100%; border: none; background: none; font-family: 'Poppins', sans-serif; text-align: left;
+    }
+    .dropdown-item:hover { background: #fdfaf7; }
+    .dropdown-item.danger { color: #f44336; }
+    .dropdown-item.danger:hover { background: #ffebee; }
+    .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); grid-column: 1 / -1; }
+    .empty-state .icon { font-size: 48px; margin-bottom: 14px; }
+    .empty-state h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .empty-state p { font-size: 13px; }
+
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); display: flex; align-items: center;
+      justify-content: center; z-index: 1000;
+    }
+    .modal-box {
+      background: white; border-radius: 20px; padding: 32px;
+      width: 90%; max-width: 440px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    }
+    .modal-box h3 { font-size: 18px; color: var(--text); margin-bottom: 6px; }
+    .modal-box p { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .modal-box label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; margin-top: 14px; }
+    .modal-box select, .modal-box textarea {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-family: 'Poppins', sans-serif; font-size: 13px;
+      outline: none; color: var(--text); background: #fdfaf7;
+    }
+    .modal-box select:focus, .modal-box textarea:focus { border-color: var(--gold); }
+    .modal-box textarea { resize: vertical; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancel {
+      padding: 10px 20px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: transparent; font-family: 'Poppins', sans-serif; font-size: 13px; cursor: pointer; color: var(--muted);
+    }
+    .btn-submit {
+      padding: 10px 20px; border-radius: 20px; border: none;
+      background: #f44336; color: white; font-family: 'Poppins', sans-serif;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .btn-submit:hover { background: #c62828; }
+
+    .inbox-btn {
+      position: relative; padding: 8px 18px; border-radius: 20px;
+      border: 1.5px solid var(--gold); background: transparent; color: var(--gold);
+      font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .inbox-btn:hover { background: var(--gold); color: white; }
+    .inbox-badge {
+      position: absolute; top: -6px; right: -6px; background: #f44336;
+      color: white; border-radius: 50%; width: 18px; height: 18px;
+      font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    }
+
+    select option:disabled { color: #bbb; font-style: italic; }
+
+    @media (max-width: 768px) {
+      nav { padding: 14px 16px; }
+      .nav-links { display: none; }
+      .main { padding: 20px 16px; }
+      .search-bar { flex-direction: column; }
+      .search-field { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand"><h2>🎓 Campus Connect</h2></div>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="network.html" class="active">Network</a></li>
+    <li><a href="chat.html">Messages</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="inbox-btn" onclick="window.location.href='chat.html'">
+      💬 Messages <span class="inbox-badge" id="unreadBadge" style="display:none;">0</span>
+    </button>
+    <div class="nav-avatar" id="navAvatar">?</div>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="page-header">
+    <h1>🌐 Find People</h1>
+    <p>Search and connect with verified students and alumni from IITs, NITs and IIITs</p>
+  </div>
+
+  <div class="search-bar">
+    <div class="search-field" style="flex:2;min-width:200px;">
+      <label>Search by Name</label>
+      <input type="text" id="f_name" placeholder="e.g. Rajesh Murmu..." onkeydown="if(event.key==='Enter') doSearch()">
+    </div>
+    <div class="search-field">
+      <label>Institute</label>
+      <select id="f_institute">
+        <option value="">All Institutes</option>
+      </select>
+    </div>
+    <div class="search-field">
+      <label>Batch</label>
+      <select id="f_batch">
+        <option value="">All Batches</option>
+        <option>2030</option><option>2029</option><option>2028</option><option>2027</option>
+        <option>2026</option><option>2025</option><option>2024</option><option>2023</option>
+        <option>2022</option><option>2021</option><option>2020</option>
+      </select>
+    </div>
+    <div class="search-field">
+      <label>Branch</label>
+      <select id="f_branch">
+        <option value="">All Branches</option>
+        <option>Computer Science & Engineering</option>
+        <option>Electrical Engineering</option>
+        <option>Electronics & Communication</option>
+        <option>Mechanical Engineering</option>
+        <option>Civil Engineering</option>
+        <option>Chemical Engineering</option>
+        <option>Aerospace Engineering</option>
+        <option>Mathematics & Computing</option>
+        <option>Biotechnology</option>
+        <option>Engineering Physics</option>
+        <option>Metallurgical Engineering</option>
+      </select>
+    </div>
+    <div class="search-field">
+      <label>Degree</label>
+      <select id="f_degree">
+        <option value="">All Degrees</option>
+        <option>B.Tech</option><option>M.Tech</option><option>B.S.</option>
+        <option>M.S.</option><option>PhD</option><option>Dual Degree</option>
+      </select>
+    </div>
+    <button class="btn-search" onclick="doSearch()">🔍 Search</button>
+    <button class="btn-clear" onclick="clearFilters()">Clear</button>
+  </div>
+
+  <div class="results-info" id="resultsInfo" style="display:none;">
+    Showing <span id="resultCount">0</span> people
+  </div>
+
+  <div class="people-grid" id="peopleGrid">
+    <div class="empty-state">
+      <div class="icon">🔍</div>
+      <h3>Search for people</h3>
+      <p>Use the filters above to find verified students and alumni</p>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="modal" id="reportModal" style="display:none;">
+  <div class="modal-box">
+    <h3>🚨 Report User</h3>
+    <p id="reportUserName">Report abusive or inappropriate behaviour</p>
+    <label>Reason</label>
+    <select id="reportReason">
+      <option value="">-- Select a reason --</option>
+      <option value="Abusive language">Abusive language</option>
+      <option value="Harassment">Harassment</option>
+      <option value="Spam">Spam</option>
+      <option value="Fake profile">Fake profile</option>
+      <option value="Inappropriate content">Inappropriate content</option>
+      <option value="Other">Other</option>
+    </select>
+    <label>Additional Details (optional)</label>
+    <textarea id="reportDetails" rows="3" placeholder="Describe what happened..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeReportModal()">Cancel</button>
+      <button class="btn-submit" onclick="submitReport()">Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIXED DROPDOWN -->
+<div id="floatingDropdown" style="display:none; position:fixed; z-index:99999; background:white; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.18); min-width:175px; border:1px solid #e0d5c7; overflow:hidden;" onmousedown="event.stopPropagation()">
+  <button class="dropdown-item" id="ddViewProfile" onclick="ddAction('view')">👤 View Profile</button>
+  <div class="dropdown-divider"></div>
+  <button class="dropdown-item danger" id="ddBlock" onclick="ddAction('block')">🚫 Block</button>
+  <button class="dropdown-item danger" id="ddReport" onclick="ddAction('report')">🚨 Report</button>
+</div>
+
+<script>
+  const BASE_URL = "https://conncam.in";
+
+  var currentUser = JSON.parse(sessionStorage.getItem("user") || "null");
+  var reportTargetId = null;
+  var activeDropdownUser = null;
+
+  if (!currentUser) { window.location.href = "login.html"; }
+  if (currentUser.account_type !== "verified" || currentUser.verification_status !== "approved") {
+    alert("Only verified and approved students can access the Network.");
+    window.location.href = "dashboard.html";
+  }
+
+  var initials = (currentUser.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+  document.getElementById("navAvatar").textContent = initials;
+
+  // ── Load institutes dropdown ──
+  async function loadInstituteDropdown() {
+    try {
+      var res  = await fetch(BASE_URL + "/social/institutes");
+      var data = await res.json();
+      var sel  = document.getElementById("f_institute");
+      sel.innerHTML = '<option value="">All Institutes</option>';
+
+      if (data.success && data.institutes) {
+        var groups = {};
+        data.institutes.forEach(function(inst) {
+          if (!groups[inst.category]) groups[inst.category] = [];
+          groups[inst.category].push(inst);
+        });
+
+        Object.keys(groups).forEach(function(cat) {
+          var grp = document.createElement("optgroup");
+          grp.label = cat;
+          groups[cat].forEach(function(inst) {
+            var opt = document.createElement("option");
+            if (inst.is_enabled) {
+              opt.value = inst.name;
+              opt.textContent = inst.name;
+            } else {
+              opt.value = "";
+              opt.textContent = "🔒 " + inst.name + " (Coming Soon)";
+              opt.disabled = true;
+              opt.style.color = "#bbb";
+            }
+            grp.appendChild(opt);
+          });
+          sel.appendChild(grp);
+        });
+      }
+    } catch(e) {
+      var sel = document.getElementById("f_institute");
+      sel.innerHTML = '<option value="">All Institutes</option><option>IIT Mandi</option>';
+    }
+  }
+
+  loadInstituteDropdown();
+  doSearch();
+
+  // ── Search ──
+  async function doSearch() {
+    var name      = document.getElementById("f_name").value.trim();
+    var institute = document.getElementById("f_institute").value;
+    var batch     = document.getElementById("f_batch").value;
+    var branch    = document.getElementById("f_branch").value;
+    var degree    = document.getElementById("f_degree").value;
+
+    document.getElementById("peopleGrid").innerHTML = '<div class="empty-state"><div class="icon">⏳</div><h3>Searching...</h3></div>';
+
+    var query = BASE_URL + "/users/search?viewer_id=" + currentUser.id;
+    if (name)      query += "&name="      + encodeURIComponent(name);
+    if (institute) query += "&institute=" + encodeURIComponent(institute);
+    if (batch)     query += "&batch="     + batch;
+    if (branch)    query += "&branch="    + encodeURIComponent(branch);
+    if (degree)    query += "&degree="    + encodeURIComponent(degree);
+
+    try {
+      var res  = await fetch(query);
+      var data = await res.json();
+
+      if (!data.success || data.users.length === 0) {
+        document.getElementById("peopleGrid").innerHTML = '<div class="empty-state"><div class="icon">😔</div><h3>No people found</h3><p>Try adjusting your filters</p></div>';
+        document.getElementById("resultsInfo").style.display = "none";
+        return;
+      }
+
+      document.getElementById("resultCount").textContent = data.users.length;
+      document.getElementById("resultsInfo").style.display = "block";
+
+      var html = "";
+      data.users.forEach(function(u) {
+        var av = (u.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+        var safeName = (u.full_name || "").replace(/'/g, "\\'");
+        html += '<div class="person-card">';
+        html += '<div class="person-top">';
+        html += '<div class="person-avatar" onclick="viewProfile(' + u.id + ')">' + av + '</div>';
+        html += '<div class="person-name-link" onclick="viewProfile(' + u.id + ')">';
+        html += '<div class="person-name">' + (u.full_name || "—") + '</div>';
+        html += '<div class="person-institute">🏛️ ' + (u.institute || "—") + '</div>';
+        html += '</div></div>';
+        html += '<div class="person-tags">';
+        if (u.batch)  html += '<span class="tag batch">Batch ' + u.batch + '</span>';
+        if (u.degree) html += '<span class="tag degree">' + u.degree + '</span>';
+        if (u.branch) html += '<span class="tag branch">' + u.branch.split(" ").slice(0,2).join(" ") + '</span>';
+        html += '</div>';
+        html += '<div class="person-actions">';
+        html += '<button class="btn-msg" onclick="startChat(' + u.id + ',\'' + safeName + '\')">💬 Message</button>';
+        html += '<button class="btn-more" onclick="openFloatingDropdown(event,' + u.id + ',\'' + safeName + '\')">⋮</button>';
+        html += '</div></div>';
+      });
+      document.getElementById("peopleGrid").innerHTML = html;
+
+    } catch(e) {
+      document.getElementById("peopleGrid").innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><h3>Network error</h3><p>Is the server running?</p></div>';
+    }
+  }
+
+  function openFloatingDropdown(event, userId, userName) {
+    event.stopPropagation();
+    activeDropdownUser = { id: userId, name: userName };
+    var dd   = document.getElementById("floatingDropdown");
+    var btn  = event.currentTarget;
+    var rect = btn.getBoundingClientRect();
+    dd.style.display = "block";
+    var top   = rect.bottom + 6;
+    var right = window.innerWidth - rect.right;
+    if (top + 140 > window.innerHeight) top = rect.top - 140;
+    dd.style.top   = top + "px";
+    dd.style.right = right + "px";
+    dd.style.left  = "auto";
+  }
+
+  function ddAction(action) {
+    var u = activeDropdownUser;
+    closeFloatingDropdown();
+    if (!u) return;
+    if (action === 'view')   viewProfile(u.id);
+    if (action === 'block')  openBlock(u.id, u.name);
+    if (action === 'report') openReport(u.id, u.name);
+  }
+
+  function closeFloatingDropdown() {
+    document.getElementById("floatingDropdown").style.display = "none";
+    activeDropdownUser = null;
+  }
+
+  document.addEventListener("mousedown", function(e) {
+    var dd = document.getElementById("floatingDropdown");
+    if (dd.style.display !== "none" && !dd.contains(e.target) && !e.target.classList.contains("btn-more")) {
+      closeFloatingDropdown();
+    }
+  });
+
+  window.addEventListener("scroll", closeFloatingDropdown, true);
+
+  function viewProfile(userId) { window.location.href = "view-profile.html?id=" + userId; }
+
+  function clearFilters() {
+    document.getElementById("f_name").value = "";
+    document.getElementById("f_institute").value = "";
+    document.getElementById("f_batch").value = "";
+    document.getElementById("f_branch").value = "";
+    document.getElementById("f_degree").value = "";
+    doSearch();
+  }
+
+  function startChat(userId, userName) {
+    sessionStorage.setItem("chatWith", JSON.stringify({ id: userId, name: userName }));
+    window.location.href = "chat.html";
+  }
+
+  async function openBlock(userId, userName) {
+    if (!confirm("Block " + userName + "? They won't be able to see you or message you.")) return;
+    try {
+      var res = await fetch(BASE_URL + "/social/block", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blocker_id: currentUser.id, blocked_id: userId })
+      });
+      var data = await res.json();
+      if (data.success) { alert(userName + " has been blocked."); doSearch(); }
+      else alert("Error: " + data.message);
+    } catch(e) { alert("Network error."); }
+  }
+
+  function openReport(userId, userName) {
+    reportTargetId = userId;
+    document.getElementById("reportUserName").textContent = "Reporting: " + userName;
+    document.getElementById("reportReason").value = "";
+    document.getElementById("reportDetails").value = "";
+    document.getElementById("reportModal").style.display = "flex";
+  }
+
+  function closeReportModal() { document.getElementById("reportModal").style.display = "none"; reportTargetId = null; }
+
+  async function submitReport() {
+    var reason  = document.getElementById("reportReason").value;
+    var details = document.getElementById("reportDetails").value.trim();
+    if (!reason) { alert("Please select a reason."); return; }
+    try {
+      var res = await fetch(BASE_URL + "/social/report", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reporter_id: currentUser.id, reported_id: reportTargetId, reason, details })
+      });
+      var data = await res.json();
+      if (data.success) { alert("Report submitted. Our admin team will review it within 24 hours."); closeReportModal(); }
+      else alert("Error: " + data.message);
+    } catch(e) { alert("Network error."); }
+  }
+
+  function logout() {
+    if (confirm("Are you sure you want to logout?")) {
+      sessionStorage.removeItem("user");
+      window.location.href = "../index.html";
+    }
+  }
+</script>
+</body>
+</html>

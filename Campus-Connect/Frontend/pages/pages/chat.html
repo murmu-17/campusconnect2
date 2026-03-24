@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Messages | Campus Connect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #b37a0f; --dark: #3e2c0f; --bg: #f4f1eb;
+      --white: #fff; --text: #4a3f35; --muted: #8b7d6b; --border: #e0d5c7;
+    }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    nav {
+      background: var(--white); padding: 14px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); flex-shrink: 0; z-index: 100;
+    }
+    .nav-brand h2 { color: var(--gold); font-size: 18px; font-weight: 700; }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500; }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); font-weight: 600; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--dark));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 12px; font-weight: 700;
+    }
+    .btn-sm {
+      padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: transparent; font-family: 'Poppins', sans-serif; font-size: 13px;
+      font-weight: 600; color: var(--muted); cursor: pointer;
+    }
+    .btn-sm:hover { border-color: #f44336; color: #f44336; }
+
+    .chat-layout { display: flex; flex: 1; overflow: hidden; }
+
+    .sidebar {
+      width: 300px; background: var(--white); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .sidebar-header {
+      padding: 18px 20px; border-bottom: 1px solid var(--border);
+      font-size: 15px; font-weight: 700; color: var(--text);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .new-chat-btn {
+      padding: 6px 14px; border-radius: 20px; border: none;
+      background: var(--gold); color: white; font-family: 'Poppins', sans-serif;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .new-chat-btn:hover { background: var(--dark); }
+    .conversations { overflow-y: auto; flex: 1; }
+    .conv-item {
+      padding: 14px 20px; cursor: pointer; transition: 0.15s;
+      border-bottom: 1px solid #f5f0ea; display: flex; align-items: center; gap: 12px;
+    }
+    .conv-item:hover { background: #fdfaf7; }
+    .conv-item.active { background: #fff8e8; border-right: 3px solid var(--gold); }
+    .conv-avatar {
+      width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--dark));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 14px; font-weight: 700;
+    }
+    .conv-info { flex: 1; min-width: 0; }
+    .conv-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .conv-last { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .conv-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .conv-time { font-size: 11px; color: var(--muted); }
+    .unread-dot { background: var(--gold); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .no-convs { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+
+    .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .chat-empty {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; color: var(--muted);
+    }
+    .chat-empty .icon { font-size: 56px; margin-bottom: 16px; }
+    .chat-empty h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .chat-empty p { font-size: 13px; }
+    .chat-empty .goto-network {
+      margin-top: 16px; padding: 10px 24px; border-radius: 20px; border: none;
+      background: var(--gold); color: white; font-family: 'Poppins', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+
+    .chat-header {
+      padding: 16px 24px; background: var(--white); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+    }
+    .chat-header-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--dark));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 14px; font-weight: 700;
+    }
+    .chat-header-info h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+    .chat-header-info p { font-size: 12px; color: var(--muted); }
+    .chat-header-actions { margin-left: auto; display: flex; gap: 8px; }
+    .btn-danger-sm {
+      padding: 7px 14px; border-radius: 20px; border: 1.5px solid #ffcdd2;
+      background: transparent; color: #f44336; font-family: 'Poppins', sans-serif;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .btn-danger-sm:hover { background: #ffebee; }
+
+    .messages-area { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 4px; background: var(--bg); }
+
+    .msg-row { display: flex; align-items: flex-end; gap: 8px; }
+    .msg-row.mine { flex-direction: row-reverse; }
+
+    .msg-av {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--dark));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 10px; font-weight: 700;
+      align-self: flex-end;
+    }
+
+    /* ── FIXED BUBBLE ── */
+    .msg-wrap {
+      display: flex;
+      flex-direction: column;
+      max-width: 65%;
+      min-width: 0;
+    }
+    .msg-row.mine .msg-wrap { align-items: flex-end; }
+    .msg-row.theirs .msg-wrap { align-items: flex-start; }
+
+    .msg-bubble {
+      width: fit-content;
+      max-width: 100%;
+      min-width: 0;
+      padding: 8px 12px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+      white-space: pre-wrap;
+      display: inline-block;
+    }
+    .msg-row.mine .msg-bubble {
+      background: var(--gold);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .msg-row.theirs .msg-bubble {
+      background: white;
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .msg-time {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+    .msg-row.mine .msg-time { text-align: right; }
+    .msg-row.theirs .msg-time { text-align: left; }
+
+    .date-sep { text-align: center; font-size: 11px; color: var(--muted); margin: 8px 0; }
+    .date-sep span { background: #e8e0d5; padding: 3px 12px; border-radius: 20px; }
+
+    .chat-input-area {
+      padding: 14px 24px; background: var(--white); border-top: 1px solid var(--border);
+      display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1; padding: 11px 16px; border: 1.5px solid var(--border);
+      border-radius: 24px; font-family: 'Poppins', sans-serif; font-size: 14px;
+      outline: none; resize: none; max-height: 100px; line-height: 1.4;
+      color: var(--text); background: #fdfaf7; transition: 0.2s;
+    }
+    .chat-input:focus { border-color: var(--gold); background: white; }
+    .btn-send {
+      padding: 11px 22px; border-radius: 24px; border: none;
+      background: var(--gold); color: white; font-family: 'Poppins', sans-serif;
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; flex-shrink: 0;
+    }
+    .btn-send:hover { background: var(--dark); }
+    .btn-send:disabled { background: #ccc; cursor: not-allowed; }
+
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); display: flex; align-items: center;
+      justify-content: center; z-index: 1000;
+    }
+    .modal-box { background: white; border-radius: 20px; padding: 32px; width: 90%; max-width: 420px; }
+    .modal-box h3 { font-size: 18px; color: var(--text); margin-bottom: 6px; }
+    .modal-box p { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .modal-box label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; margin-top: 14px; }
+    .modal-box select, .modal-box textarea {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: 'Poppins', sans-serif; font-size: 13px; outline: none; color: var(--text); background: #fdfaf7;
+    }
+    .modal-box textarea { resize: vertical; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .btn-cancel { padding: 10px 20px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; font-family: 'Poppins', sans-serif; font-size: 13px; cursor: pointer; color: var(--muted); }
+    .btn-report { padding: 10px 20px; border-radius: 20px; border: none; background: #f44336; color: white; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+    @media (max-width: 768px) {
+      nav { padding: 12px 16px; }
+      .nav-links { display: none; }
+      .sidebar { width: 80px; }
+      .conv-info, .conv-meta, .sidebar-header span, .new-chat-btn span { display: none; }
+      .conv-item { justify-content: center; padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand"><h2>🎓 Campus Connect</h2></div>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="network.html">Network</a></li>
+    <li><a href="chat.html" class="active">Messages</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="nav-avatar" id="navAvatar">?</div>
+    <button class="btn-sm" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="chat-layout">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <span>💬 Messages</span>
+      <button class="new-chat-btn" onclick="window.location.href='network.html'">+ New</button>
+    </div>
+    <div class="conversations" id="conversationsList">
+      <div class="no-convs">No conversations yet</div>
+    </div>
+  </div>
+
+  <div class="chat-area" id="chatArea">
+    <div class="chat-empty" id="chatEmpty">
+      <div class="icon">💬</div>
+      <h3>Your Messages</h3>
+      <p>Select a conversation or start a new one</p>
+      <button class="goto-network" onclick="window.location.href='network.html'">Find People →</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="modal" id="reportModal" style="display:none;">
+  <div class="modal-box">
+    <h3>🚨 Report User</h3>
+    <p id="reportName">Report abusive or inappropriate behaviour</p>
+    <label>Reason</label>
+    <select id="reportReason">
+      <option value="">-- Select reason --</option>
+      <option value="Abusive language">Abusive language</option>
+      <option value="Harassment">Harassment</option>
+      <option value="Spam">Spam</option>
+      <option value="Fake profile">Fake profile</option>
+      <option value="Inappropriate content">Inappropriate content</option>
+      <option value="Other">Other</option>
+    </select>
+    <label>Details (optional)</label>
+    <textarea id="reportDetails" rows="3" placeholder="Describe what happened..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeReport()">Cancel</button>
+      <button class="btn-report" onclick="submitReport()">Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const BASE_URL = "https://conncam.in";
+  const WS_URL = "ws://43.205.171.240/ws";
+
+  var currentUser = JSON.parse(sessionStorage.getItem("user") || "null");
+  if (!currentUser) { window.location.href = "login.html"; }
+
+  var initials = (currentUser.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+  document.getElementById("navAvatar").textContent = initials;
+
+  var activeChatUser = null;
+  var ws = null;
+  var reportTarget = null;
+
+  function connectWS() {
+    ws = new WebSocket(WS_URL);
+    ws.onopen = function() {
+      ws.send(JSON.stringify({ type: "register", user_id: currentUser.id }));
+    };
+    ws.onmessage = function(event) {
+      var msg = JSON.parse(event.data);
+      if (msg.type === "message") {
+        if (activeChatUser && (
+          (msg.sender_id == activeChatUser.id && msg.receiver_id == currentUser.id) ||
+          (msg.sender_id == currentUser.id && msg.receiver_id == activeChatUser.id)
+        )) {
+          appendMessage(msg, msg.sender_id == currentUser.id);
+        }
+        loadConversations();
+      }
+      if (msg.type === "error") { alert(msg.message); }
+    };
+    ws.onclose = function() { setTimeout(connectWS, 3000); };
+  }
+  connectWS();
+
+  async function loadConversations() {
+    try {
+      var res  = await fetch(BASE_URL + "/messages/inbox/" + currentUser.id);
+      var data = await res.json();
+      if (!data.success || data.conversations.length === 0) {
+        document.getElementById("conversationsList").innerHTML = '<div class="no-convs">No conversations yet.<br>Go to Network to start one.</div>';
+        return;
+      }
+      var html = "";
+      data.conversations.forEach(function(c) {
+        var av = (c.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+        var isActive = activeChatUser && activeChatUser.id == c.id;
+        var time = formatTime(c.last_time);
+        html += '<div class="conv-item' + (isActive ? " active" : "") + '" onclick="openChat(' + c.id + ',\'' + (c.full_name||"").replace(/'/g,"") + '\',\'' + (c.institute||"").replace(/'/g,"") + '\')">';
+        html += '<div class="conv-avatar">' + av + '</div>';
+        html += '<div class="conv-info">';
+        html += '<div class="conv-name">' + (c.full_name || "—") + '</div>';
+        html += '<div class="conv-last">' + (c.last_message || "").substring(0, 30) + (c.last_message && c.last_message.length > 30 ? "..." : "") + '</div>';
+        html += '</div>';
+        html += '<div class="conv-meta"><span class="conv-time">' + time + '</span>';
+        if (c.unread_count > 0) html += '<span class="unread-dot">' + c.unread_count + '</span>';
+        html += '</div></div>';
+      });
+      document.getElementById("conversationsList").innerHTML = html;
+    } catch(e) { console.error("Load conversations error:", e); }
+  }
+
+  loadConversations();
+
+  async function openChat(userId, userName, institute) {
+    activeChatUser = { id: userId, name: userName, institute: institute };
+    var chatWith = sessionStorage.getItem("chatWith");
+    if (chatWith) { sessionStorage.removeItem("chatWith"); }
+    var av = (userName || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+    var chatHTML = `
+      <div class="chat-header">
+        <div class="chat-header-avatar">${av}</div>
+        <div class="chat-header-info">
+          <h3>${userName}</h3>
+          <p>🏛️ ${institute || "—"}</p>
+        </div>
+        <div class="chat-header-actions">
+          <button class="btn-danger-sm" onclick="blockUser(${userId}, '${userName.replace(/'/g,"")}')">🚫 Block</button>
+          <button class="btn-danger-sm" onclick="openReport(${userId}, '${userName.replace(/'/g,"")}')">🚨 Report</button>
+        </div>
+      </div>
+      <div class="messages-area" id="messagesArea"></div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="msgInput" placeholder="Type a message..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
+          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <button class="btn-send" id="sendBtn" onclick="sendMessage()">Send ➤</button>
+      </div>
+    `;
+    document.getElementById("chatArea").innerHTML = chatHTML;
+    await loadMessages();
+    loadConversations();
+  }
+
+  async function loadMessages() {
+    if (!activeChatUser) return;
+    try {
+      var res  = await fetch(BASE_URL + "/messages/" + currentUser.id + "/" + activeChatUser.id);
+      var data = await res.json();
+      var area = document.getElementById("messagesArea");
+      if (!area) return;
+      area.innerHTML = "";
+      if (!data.success || data.messages.length === 0) {
+        area.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:40px;">No messages yet. Say hello! 👋</div>';
+        return;
+      }
+      var lastDate = "";
+      data.messages.forEach(function(m) {
+        var d = new Date(m.created_at).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" });
+        if (d !== lastDate) {
+          area.innerHTML += '<div class="date-sep"><span>' + d + '</span></div>';
+          lastDate = d;
+        }
+        appendMessage(m, m.sender_id == currentUser.id);
+      });
+      scrollToBottom();
+    } catch(e) { console.error("Load messages error:", e); }
+  }
+
+  function appendMessage(msg, isMine) {
+    var area = document.getElementById("messagesArea");
+    if (!area) return;
+    var av = isMine
+      ? initials
+      : (activeChatUser ? (activeChatUser.name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2) : "?");
+    var time = new Date(msg.created_at).toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit" });
+    var div = document.createElement("div");
+    div.className = "msg-row " + (isMine ? "mine" : "theirs");
+    div.innerHTML = `
+      <div class="msg-av">${av}</div>
+      <div class="msg-wrap">
+        <div class="msg-bubble">${escapeHtml(msg.content)}</div>
+        <div class="msg-time">${time}</div>
+      </div>
+    `;
+    area.appendChild(div);
+    scrollToBottom();
+  }
+
+  function sendMessage() {
+    var input = document.getElementById("msgInput");
+    if (!input || !activeChatUser) return;
+    var content = input.value.trim();
+    if (!content) return;
+    if (!ws || ws.readyState !== 1) { alert("Connection lost. Reconnecting..."); return; }
+    ws.send(JSON.stringify({ type: "message", sender_id: currentUser.id, receiver_id: activeChatUser.id, content: content }));
+    input.value = "";
+    input.style.height = "auto";
+  }
+
+  async function blockUser(userId, userName) {
+    if (!confirm("Block " + userName + "? You won't see each other and messages will stop.")) return;
+    try {
+      var res = await fetch(BASE_URL + "/social/block", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blocker_id: currentUser.id, blocked_id: userId })
+      });
+      var data = await res.json();
+      if (data.success) {
+        alert(userName + " blocked.");
+        activeChatUser = null;
+        document.getElementById("chatArea").innerHTML = document.getElementById("chatEmpty") ? document.getElementById("chatEmpty").outerHTML : "";
+        loadConversations();
+      }
+    } catch(e) { alert("Network error."); }
+  }
+
+  function openReport(userId, userName) {
+    reportTarget = userId;
+    document.getElementById("reportName").textContent = "Reporting: " + userName;
+    document.getElementById("reportReason").value = "";
+    document.getElementById("reportDetails").value = "";
+    document.getElementById("reportModal").style.display = "flex";
+  }
+  function closeReport() { document.getElementById("reportModal").style.display = "none"; reportTarget = null; }
+
+  async function submitReport() {
+    var reason  = document.getElementById("reportReason").value;
+    var details = document.getElementById("reportDetails").value.trim();
+    if (!reason) { alert("Please select a reason."); return; }
+    try {
+      var res = await fetch(BASE_URL + "/social/report", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reporter_id: currentUser.id, reported_id: reportTarget, reason, details })
+      });
+      var data = await res.json();
+      if (data.success) { alert("Report submitted. Admin will review within 24 hours."); closeReport(); }
+      else alert("Error: " + data.message);
+    } catch(e) { alert("Network error."); }
+  }
+
+  function scrollToBottom() { var a = document.getElementById("messagesArea"); if (a) a.scrollTop = a.scrollHeight; }
+
+  function formatTime(ts) {
+    if (!ts) return "";
+    var d = new Date(ts), now = new Date();
+    if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit" });
+    return d.toLocaleDateString("en-IN", { day:"numeric", month:"short" });
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function logout() {
+    if (confirm("Logout?")) { if (ws) ws.close(); sessionStorage.removeItem("user"); window.location.href = "index.html"; }
+  }
+
+  window.addEventListener("load", function() {
+    var chatWith = sessionStorage.getItem("chatWith");
+    if (chatWith) {
+      var u = JSON.parse(chatWith);
+      openChat(u.id, u.name, u.institute || "");
+    }
+  });
+</script>
+</body>
+</html>
