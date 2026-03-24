@@ -10,13 +10,17 @@ router.get("/inbox/:user_id", (req, res) => {
        m.content as last_message, m.created_at as last_time, m.sender_id,
        SUM(CASE WHEN m.is_read=0 AND m.receiver_id=? THEN 1 ELSE 0 END) as unread_count
      FROM users u
-     JOIN messages m ON ((m.sender_id=u.id AND m.receiver_id=?) OR (m.receiver_id=u.id AND m.sender_id=?))
+     JOIN messages m ON m.id = (
+       SELECT id FROM messages
+       WHERE (sender_id=u.id AND receiver_id=?) OR (sender_id=? AND receiver_id=u.id)
+       ORDER BY created_at DESC LIMIT 1
+     )
      WHERE u.id!=?
      GROUP BY u.id
      ORDER BY last_time DESC`,
     [user_id, user_id, user_id, user_id],
     (err, results) => {
-      if (err) return res.json({ success: false, message: "DB error" });
+      if (err) { console.error("INBOX ERROR:", err.message); return res.json({ success: false, message: "DB error" }); }
       res.json({ success: true, conversations: results });
     }
   );
