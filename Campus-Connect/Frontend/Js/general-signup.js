@@ -1,4 +1,4 @@
-const BASE_URL = "http://43.205.171.240";
+const BASE_URL = "https://conncam.in";
 
 var otpVerified = false;
 var otpTarget   = "";

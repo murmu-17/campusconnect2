@@ -1,4 +1,4 @@
-const BASE_URL = "http://43.205.171.240";
+const BASE_URL = "https://conncam.in";
 
 var company = JSON.parse(sessionStorage.getItem("company") || "null");
 if (!company) { window.location.href = "company-login.html"; }
