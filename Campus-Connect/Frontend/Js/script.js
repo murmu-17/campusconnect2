@@ -5,7 +5,7 @@ async function login() {
   const identifier = document.getElementById("identifier").value.trim();
   const password   = document.getElementById("password").value;
 
-  if (!identifier || !password) { alert("Please fill all fields ❌"); return; }
+  if (!identifier || !password) { alert("Please fill all fields!"); return; }
 
   const btn = document.querySelector("button");
   btn.disabled = true;
