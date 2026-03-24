@@ -29,15 +29,10 @@
   </div>
 
   <h1>Create Account</h1>
-  <p class="subtitle">Sign up with Gmail or Phone Number</p>
+  <p class="subtitle">Sign up with your Gmail address</p>
 
-  <div class="tab-group">
-    <button class="tab-btn active" onclick="switchTab('email')">Gmail</button>
-    <button class="tab-btn" onclick="switchTab('phone')">Phone</button>
-  </div>
-
-  <!-- EMAIL TAB -->
-  <div class="tab-panel active" id="panel-email">
+  <!-- EMAIL FORM ONLY -->
+  <div id="panel-email">
     <form id="emailForm">
       <label>Full Name</label>
       <input type="text" id="g_name" placeholder="Your full name" required>
@@ -47,7 +42,7 @@
 
       <!-- OTP Send -->
       <button type="button" class="btn-send-otp" id="send-otp-btn-email" onclick="sendOtp('email')">
-        📧 Send OTP to Email
+        Send OTP to Email
       </button>
       <p class="otp-status" id="otp-status-email"></p>
 
@@ -64,38 +59,6 @@
       <input type="password" id="g_password" placeholder="Minimum 8 characters" required minlength="8">
 
       <button type="submit" class="submit-btn" id="emailBtn">Create Account</button>
-    </form>
-  </div>
-
-  <!-- PHONE TAB -->
-  <div class="tab-panel" id="panel-phone">
-    <form id="phoneForm">
-      <label>Full Name</label>
-      <input type="text" id="p_name" placeholder="Your full name" required>
-
-      <label>Phone Number</label>
-      <input type="tel" id="p_phone" placeholder="+91XXXXXXXXXX" required>
-      <p class="hint">Enter with country code e.g. +91 for India</p>
-
-      <!-- OTP Send -->
-      <button type="button" class="btn-send-otp" id="send-otp-btn-phone" onclick="sendOtp('phone')">
-        📱 Send OTP via SMS
-      </button>
-      <p class="otp-status" id="otp-status-phone"></p>
-
-      <!-- OTP Input (hidden until OTP sent) -->
-      <div class="otp-section" id="otp-section-phone" style="display:none;">
-        <label style="font-size:13px;font-weight:600;color:#4a3f35;">Enter 6-digit OTP</label>
-        <div class="otp-row">
-          <input type="text" id="otp-input-phone" maxlength="6" placeholder="------">
-          <button type="button" class="btn-otp-verify" id="verify-otp-btn-phone" onclick="verifyOtp('phone')">Verify</button>
-        </div>
-      </div>
-
-      <label style="margin-top:14px;">Password</label>
-      <input type="password" id="p_password" placeholder="Minimum 8 characters" required minlength="8">
-
-      <button type="submit" class="submit-btn" id="phoneBtn">Create Account</button>
     </form>
   </div>
 
