@@ -185,6 +185,13 @@
       font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
     }
 
+    /* General user banner */
+    .general-banner {
+      background: #e3f2fd; border: 1.5px solid #90caf9; border-radius: 12px;
+      padding: 12px 18px; margin-bottom: 20px; font-size: 13px; color: #1565c0;
+      display: flex; align-items: center; gap: 10px;
+    }
+
     select option:disabled { color: #bbb; font-style: italic; }
 
     @media (max-width: 768px) {
@@ -219,6 +226,11 @@
   <div class="page-header">
     <h1>🌐 Find People</h1>
     <p>Search and connect with verified students and alumni from IITs, NITs and IIITs</p>
+  </div>
+
+  <!-- General user info banner -->
+  <div class="general-banner" id="generalBanner" style="display:none;">
+    ℹ️ As a general user you can browse the network and send <strong>message requests</strong> to verified students.
   </div>
 
   <div class="search-bar">
@@ -286,7 +298,7 @@
 <!-- REPORT MODAL -->
 <div class="modal" id="reportModal" style="display:none;">
   <div class="modal-box">
-    <h3>🚨 Report User</h3>
+    <h3>Report User</h3>
     <p id="reportUserName">Report abusive or inappropriate behaviour</p>
     <label>Reason</label>
     <select id="reportReason">
@@ -312,7 +324,7 @@
   <button class="dropdown-item" id="ddViewProfile" onclick="ddAction('view')">👤 View Profile</button>
   <div class="dropdown-divider"></div>
   <button class="dropdown-item danger" id="ddBlock" onclick="ddAction('block')">🚫 Block</button>
-  <button class="dropdown-item danger" id="ddReport" onclick="ddAction('report')">🚨 Report</button>
+  <button class="dropdown-item danger" id="ddReport" onclick="ddAction('report')">Report</button>
 </div>
 
 <script>
@@ -323,9 +335,12 @@
   var activeDropdownUser = null;
 
   if (!currentUser) { window.location.href = "login.html"; }
-  if (currentUser.account_type !== "verified" || currentUser.verification_status !== "approved") {
-    alert("Only verified and approved students can access the Network.");
-    window.location.href = "dashboard.html";
+
+  var isVerified = currentUser.account_type === "verified" && currentUser.verification_status === "approved";
+
+  // Show general user banner
+  if (!isVerified) {
+    document.getElementById("generalBanner").style.display = "flex";
   }
 
   var initials = (currentUser.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
@@ -404,6 +419,8 @@
       document.getElementById("resultCount").textContent = data.users.length;
       document.getElementById("resultsInfo").style.display = "block";
 
+      var btnLabel = isVerified ? "💬 Message" : "✉️ Request";
+
       var html = "";
       data.users.forEach(function(u) {
         var av = (u.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
@@ -421,8 +438,8 @@
         if (u.branch) html += '<span class="tag branch">' + u.branch.split(" ").slice(0,2).join(" ") + '</span>';
         html += '</div>';
         html += '<div class="person-actions">';
-        html += '<button class="btn-msg" onclick="startChat(' + u.id + ',\'' + safeName + '\')">💬 Message</button>';
-        html += '<button class="btn-more" onclick="openFloatingDropdown(event,' + u.id + ',\'' + safeName + '\')">⋮</button>';
+        html += '<button class="btn-msg" onclick="startChat(' + u.id + ',\'' + safeName + '\')">' + btnLabel + '</button>';
+        html += '<button class="btn-more" onclick="openFloatingDropdown(event,' + u.id + ',\'' + safeName + '\')">&#8942;</button>';
         html += '</div></div>';
       });
       document.getElementById("peopleGrid").innerHTML = html;
@@ -430,6 +447,32 @@
     } catch(e) {
       document.getElementById("peopleGrid").innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><h3>Network error</h3><p>Is the server running?</p></div>';
     }
+  }
+
+  // ── Start Chat or Send Request based on user type ──
+  function startChat(userId, userName) {
+    if (isVerified) {
+      // Verified user — go directly to chat
+      sessionStorage.setItem("chatWith", JSON.stringify({ id: userId, name: userName }));
+      window.location.href = "chat.html";
+    } else {
+      // General user — send message request
+      sendMessageRequest(userId, userName);
+    }
+  }
+
+  async function sendMessageRequest(userId, userName) {
+    if (!confirm("Send a message request to " + userName + "?")) return;
+    try {
+      var res = await fetch(BASE_URL + "/social/message-request", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ sender_id: currentUser.id, receiver_id: userId })
+      });
+      var data = await res.json();
+      if (data.success) alert("Message request sent to " + userName + "! You will be notified when they accept.");
+      else alert("Error: " + data.message);
+    } catch(e) { alert("Network error."); }
   }
 
   function openFloatingDropdown(event, userId, userName) {
@@ -479,11 +522,6 @@
     document.getElementById("f_branch").value = "";
     document.getElementById("f_degree").value = "";
     doSearch();
-  }
-
-  function startChat(userId, userName) {
-    sessionStorage.setItem("chatWith", JSON.stringify({ id: userId, name: userName }));
-    window.location.href = "chat.html";
   }
 
   async function openBlock(userId, userName) {
