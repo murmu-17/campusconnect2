@@ -33,16 +33,49 @@ router.get("/:user1/:user2", (req, res) => {
     `SELECT m.*, u.full_name as sender_name
      FROM messages m
      JOIN users u ON u.id=m.sender_id
-     WHERE (m.sender_id=? AND m.receiver_id=?) OR (m.sender_id=? AND m.receiver_id=?)
+     WHERE ((m.sender_id=? AND m.receiver_id=?) OR (m.sender_id=? AND m.receiver_id=?))
+     AND m.deleted_for_everyone=0
+     AND NOT (m.sender_id=? AND m.deleted_by_sender=1)
+     AND NOT (m.receiver_id=? AND m.deleted_by_receiver=1)
      ORDER BY m.created_at ASC`,
-    [user1, user2, user2, user1],
+    [user1, user2, user2, user1, user1, user1],
     (err, results) => {
       if (err) return res.json({ success: false, message: "DB error" });
-      // Mark messages as read
       db.query("UPDATE messages SET is_read=1 WHERE receiver_id=? AND sender_id=?", [user1, user2], () => {});
       res.json({ success: true, messages: results });
     }
   );
 });
+// ================= DELETE MESSAGE =================
+router.post("/delete/:message_id", (req, res) => {
+  const { message_id } = req.params;
+  const { user_id, delete_for_everyone } = req.body;
 
+  db.query("SELECT sender_id, receiver_id FROM messages WHERE id=?", [message_id], (err, result) => {
+    if (err || result.length === 0) return res.json({ success: false, message: "Message not found" });
+    
+    var msg = result[0];
+    var isSender = msg.sender_id == user_id;
+    var isReceiver = msg.receiver_id == user_id;
+
+    if (delete_for_everyone && isSender) {
+      db.query("UPDATE messages SET deleted_for_everyone=1 WHERE id=?", [message_id], (err2) => {
+        if (err2) return res.json({ success: false, message: "DB error" });
+        res.json({ success: true, type: "everyone" });
+      });
+    } else if (isSender) {
+      db.query("UPDATE messages SET deleted_by_sender=1 WHERE id=?", [message_id], (err2) => {
+        if (err2) return res.json({ success: false, message: "DB error" });
+        res.json({ success: true, type: "sender" });
+      });
+    } else if (isReceiver) {
+      db.query("UPDATE messages SET deleted_by_receiver=1 WHERE id=?", [message_id], (err2) => {
+        if (err2) return res.json({ success: false, message: "DB error" });
+        res.json({ success: true, type: "receiver" });
+      });
+    } else {
+      res.json({ success: false, message: "Not authorized" });
+    }
+  });
+});
 module.exports = router;
