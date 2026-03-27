@@ -12,13 +12,16 @@ router.get("/inbox/:user_id", (req, res) => {
      FROM users u
      JOIN messages m ON m.id = (
        SELECT id FROM messages
-       WHERE (sender_id=u.id AND receiver_id=?) OR (sender_id=? AND receiver_id=u.id)
+       WHERE ((sender_id=u.id AND receiver_id=?) OR (sender_id=? AND receiver_id=u.id))
+       AND deleted_for_everyone=0
+       AND NOT (sender_id=? AND deleted_by_sender=1)
+       AND NOT (receiver_id=? AND deleted_by_receiver=1)
        ORDER BY created_at DESC LIMIT 1
      )
      WHERE u.id!=?
      GROUP BY u.id
      ORDER BY last_time DESC`,
-    [user_id, user_id, user_id, user_id],
+    [user_id, user_id, user_id, user_id, user_id, user_id],
     (err, results) => {
       if (err) { console.error("INBOX ERROR:", err.message); return res.json({ success: false, message: "DB error" }); }
       res.json({ success: true, conversations: results });
