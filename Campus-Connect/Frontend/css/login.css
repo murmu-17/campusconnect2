@@ -166,3 +166,47 @@ body {
 .home-btn:hover {
   background: #4b2e05;
 }
+/* ── MOBILE IMPROVEMENTS ── */
+@media (max-width: 768px) {
+  body { height: auto; min-height: 100vh; }
+
+  .container {
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 70px 20px 40px;
+    justify-content: center;
+  }
+
+  .left-section { display: none; }
+
+  .right-section {
+    padding: 0;
+    background: transparent;
+  }
+
+  .login-box {
+    padding: 28px 22px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  }
+
+  .login-box h2 { font-size: 20px; margin-bottom: 20px; }
+
+  .login-box input {
+    padding: 13px 16px;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .login-box button {
+    padding: 13px;
+    font-size: 15px;
+  }
+
+  .home-btn {
+    top: 16px;
+    left: 16px;
+    padding: 7px 14px;
+    font-size: 13px;
+  }
+}

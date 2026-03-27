@@ -104,11 +104,66 @@
     .btn-warning-ok:hover { background:#e65100; }
 
     footer { background:var(--dark); color:white; text-align:center; padding:18px; font-size:13px; margin-top:40px; }
-    @media(max-width:900px) {
-      nav { padding:14px 16px; } .nav-links { display:none; }
-      .grid-2,.grid-3 { grid-template-columns:1fr; }
-      .welcome-banner { flex-direction:column; gap:16px; align-items:flex-start; }
-      .main { padding:20px 16px; }
+
+    /* ── MOBILE NAV HAMBURGER ── */
+    .hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
+    .hamburger span { display:block; width:22px; height:2px; background:var(--text); border-radius:4px; transition:0.3s; }
+    .hamburger.active span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity:0; }
+    .hamburger.active span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+    .mobile-nav {
+      display:none; flex-direction:column;
+      background:var(--white); padding:12px 20px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      position:sticky; top:57px; z-index:99;
+    }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { text-decoration:none; color:var(--text); font-size:15px; font-weight:500; padding:12px 0; border-bottom:1px solid #f5f0ea; }
+    .mobile-nav a:last-child { border-bottom:none; }
+    .mobile-nav a.active { color:var(--gold); font-weight:600; }
+
+    /* ── DESKTOP UNCHANGED, MOBILE ONLY ── */
+    @media(max-width:768px) {
+      nav { padding:14px 16px; }
+      .nav-links { display:none; }
+      .hamburger { display:flex; }
+      .btn-logout { padding:7px 14px; font-size:12px; }
+
+      .main { padding:16px 14px; }
+
+      /* Welcome banner */
+      .welcome-banner { padding:24px 20px; flex-direction:column; gap:14px; align-items:flex-start; border-radius:16px; }
+      .welcome-left h1 { font-size:20px; }
+      .welcome-left p { font-size:13px; }
+      .welcome-badge { font-size:12px; padding:8px 16px; }
+
+      /* Status alerts */
+      .status-alert { flex-wrap:wrap; padding:14px 16px; gap:10px; }
+      .alert-action { margin-left:0; width:100%; text-align:center; }
+
+      /* Grids → single column */
+      .grid-3 { grid-template-columns:1fr; gap:12px; }
+      .grid-2 { grid-template-columns:1fr; gap:12px; }
+
+      /* Stat cards */
+      .stat-card { padding:16px 18px; }
+      .stat-icon { width:42px; height:42px; font-size:18px; }
+
+      /* Cards */
+      .card { padding:18px 16px; border-radius:14px; }
+
+      /* Profile row wrap */
+      .profile-row { flex-wrap:wrap; gap:4px; }
+      .profile-value { text-align:right; }
+
+      /* Action cards side by side on mobile */
+      .grid-2 > div:last-child { display:flex; flex-direction:column; gap:12px; }
+      .action-card { padding:18px 16px; }
+
+      /* Warning box */
+      .warning-box { padding:24px 20px; }
+      .warning-box h2 { font-size:17px; }
     }
   </style>
 </head>
@@ -132,14 +187,23 @@
     <li><a href="network.html">Network</a></li>
     <li><a href="chat.html">Messages</a></li>
     <li><a href="profile.html">Profile</a></li>
-    <!-- <li><a href="opportunities.html">Opportunities</a></li> remove comment to opportunity -->
-    <!-- <li><a href="../index.html">Home</a></li> -->
   </ul>
   <div class="nav-right">
     <div class="nav-avatar" id="navAvatar" onclick="window.location.href='profile.html'">?</div>
     <button class="btn-logout" onclick="logout()">Logout</button>
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- Mobile nav dropdown -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="dashboard.html" class="active">📊 Dashboard</a>
+  <a href="network.html">🤝 Network</a>
+  <a href="chat.html">💬 Messages</a>
+  <a href="profile.html">👤 Profile</a>
+</div>
 
 <div class="main">
   <div class="welcome-banner">
@@ -274,7 +338,6 @@
     document.getElementById("badgeDot").style.background="#4caf50";
     document.getElementById("heroSub").textContent="Your account is fully verified. Explore the network!";
     document.getElementById("actText").textContent="Account verified and approved ✓";
-    // loadMyApplications(); // remove comment to re-enable
   } else if (type==="general") {
     document.getElementById("badgeText").textContent="👤 General Member";
     document.getElementById("heroBadge").style.background="rgba(21,101,192,0.15)";
@@ -286,7 +349,7 @@
     document.getElementById("chatCard").classList.add("locked");
     document.getElementById("tip1").textContent="Browse the network and send a message request to a verified user.";
     document.getElementById("tip2").textContent="Once your request is accepted, you can start chatting!";
-   document.getElementById("tip3").textContent="If there is no conversation for 7 days, you will need to send a new request.";
+    document.getElementById("tip3").textContent="If there is no conversation for 7 days, you will need to send a new request.";
   } else if (status==="pending") {
     document.getElementById("badgeText").textContent="⏳ Verification Pending";
     document.getElementById("heroBadge").style.background="rgba(245,158,11,0.15)";
@@ -309,7 +372,6 @@
   else if (status==="pending") { document.getElementById("alertPending").style.display="flex"; }
   else if (status==="rejected") { document.getElementById("alertRejected").style.display="flex"; }
 
-  // ── CHECK WARNING ──
   async function checkWarning() {
     try {
       var res  = await fetch(BASE_URL + "/users/warning/" + user.id);
@@ -330,7 +392,6 @@
 
   checkWarning();
 
-  // ── MY APPLICATIONS ──
   async function loadMyApplications() {
     document.getElementById("applicationsCard").style.display = "block";
     try {
@@ -347,21 +408,30 @@
         var date  = new Date(a.created_at).toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"});
         var label = a.status==="accepted" ? "✓ Accepted" : a.status==="rejected" ? "✗ Not Selected" : "⏳ Under Review";
         var typeLabel = {internship:"Internship",fulltime:"Full-time",parttime:"Part-time",contract:"Contract"}[a.type] || "";
-        html += '<div class="app-item">';
-        html += '<div class="app-icon" style="background:'+iconBg+';">'+icon+'</div>';
-        html += '<div class="app-body">';
-        html += '<div class="app-title">'+(a.title||"—")+'</div>';
+        html += '<div class="app-item"><div class="app-icon" style="background:'+iconBg+';">'+icon+'</div>';
+        html += '<div class="app-body"><div class="app-title">'+(a.title||"—")+'</div>';
         html += '<div class="app-company">🏢 '+(a.company_name||"—")+(typeLabel?" · "+typeLabel:"")+'</div>';
-        html += '<div class="app-date">Applied: '+date+'</div>';
-        html += '</div>';
-        html += '<span class="status-pill '+a.status+'">'+label+'</span>';
-        html += '</div>';
+        html += '<div class="app-date">Applied: '+date+'</div></div>';
+        html += '<span class="status-pill '+a.status+'">'+label+'</span></div>';
       });
       document.getElementById("applicationsList").innerHTML = html;
     } catch(e) {
       document.getElementById("applicationsList").innerHTML = '<div class="app-empty" style="color:#c62828;">Could not load applications.</div>';
     }
   }
+
+  function toggleMobileNav() {
+    document.getElementById("mobileNav").classList.toggle("open");
+    document.getElementById("hamburger").classList.toggle("active");
+  }
+  document.addEventListener("click", function(e) {
+    var nav  = document.getElementById("mobileNav");
+    var btn  = document.getElementById("hamburger");
+    if (nav && btn && !nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove("open");
+      btn.classList.remove("active");
+    }
+  });
 
   function logout() { if(confirm("Logout?")){ sessionStorage.removeItem("user"); window.location.href="../index.html"; } }
 </script>

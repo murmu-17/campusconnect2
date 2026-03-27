@@ -62,12 +62,61 @@
     .skills-grid { display: flex; flex-wrap: wrap; gap: 8px; }
     .skill-tag { background: var(--gold-light); color: var(--dark); padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; border: 1px solid #f0d89a; }
     footer { background: var(--dark); color: white; text-align: center; padding: 18px; font-size: 13px; }
-    @media (max-width: 640px) {
-      nav { padding: 12px 16px; } .nav-links { display: none; }
-      .back-bar, .main { padding-left: 12px; padding-right: 12px; }
-      .profile-header { grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 24px 16px; }
+
+    /* ── HAMBURGER ── */
+    .hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
+    .hamburger span { display:block; width:22px; height:2px; background:var(--text); border-radius:4px; transition:0.3s; }
+    .hamburger.active span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity:0; }
+    .hamburger.active span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+    .mobile-nav { display:none; flex-direction:column; background:var(--white); padding:12px 20px; box-shadow:0 4px 12px rgba(0,0,0,0.08); position:sticky; top:57px; z-index:199; }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { text-decoration:none; color:var(--text); font-size:15px; font-weight:500; padding:12px 0; border-bottom:1px solid #f5f0ea; }
+    .mobile-nav a:last-child { border-bottom:none; }
+    .mobile-nav a.active { color:var(--gold); font-weight:600; }
+
+    /* ── MOBILE ONLY ── */
+    @media (max-width: 768px) {
+      nav { padding: 12px 16px; }
+      .nav-links { display: none; }
+      .btn-logout { padding: 7px 12px; font-size: 12px; }
+      .hamburger { display: flex; }
+
+      .back-bar { padding: 14px 14px 0; }
+      .main { padding: 12px 14px 40px; gap: 12px; }
+
+      /* Profile header stacks */
+      .profile-header {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+        padding: 24px 16px 20px;
+        gap: 16px;
+      }
+      .profile-pic { width: 88px; height: 88px; font-size: 28px; }
+      .profile-name { font-size: 20px; }
+      .profile-name-row { justify-content: center; }
+      .profile-headline { font-size: 13px; }
       .profile-meta { justify-content: center; }
-      .section-header { padding: 14px 18px 12px; } .section-body { padding: 14px 18px 18px; }
+      .meta-pill { font-size: 11px; padding: 4px 10px; }
+
+      /* Sections */
+      .section-header { padding: 14px 16px 12px; }
+      .section-body { padding: 12px 16px 16px; }
+      .section-title { font-size: 14px; }
+
+      /* Exp items */
+      .exp-icon { width: 36px; height: 36px; font-size: 16px; }
+      .exp-title { font-size: 13px; }
+      .exp-company, .exp-date { font-size: 11px; }
+      .exp-desc { font-size: 12px; }
+
+      /* Skills */
+      .skill-tag { font-size: 12px; padding: 5px 12px; }
+
+      /* State card */
+      .state-card { padding: 40px 20px; }
+      .state-card h3 { font-size: 17px; }
     }
   </style>
 </head>
@@ -84,8 +133,18 @@
   <div class="nav-right">
     <div class="nav-avatar" id="navAvatar">?</div>
     <button class="btn-logout" onclick="logout()">Logout</button>
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="dashboard.html">📊 Dashboard</a>
+  <a href="network.html" class="active">🤝 Network</a>
+  <a href="chat.html">💬 Messages</a>
+  <a href="contact.html">📞 Contact</a>
+</div>
 
 <div class="back-bar">
   <button class="btn-back" onclick="history.back()">← Back to Network</button>
@@ -110,7 +169,6 @@
   var myIni = (currentUser.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
   document.getElementById("navAvatar").textContent = myIni;
 
-  // Load current user's own profile pic for nav avatar
   var myProfile = JSON.parse(localStorage.getItem("cc_profile_" + currentUser.id) || "{}");
   if (myProfile.profilePic) {
     document.getElementById("navAvatar").innerHTML = '<img src="'+myProfile.profilePic+'" style="object-position:center top;">';
@@ -129,7 +187,6 @@
 
   async function loadProfile(userId) {
     try {
-      // Load user basic info
       var res  = await fetch(BASE_URL + "/users/search?viewer_id=" + currentUser.id + "&user_id=" + userId);
       var data = await res.json();
       if (!data.success || !data.users || data.users.length === 0) {
@@ -137,12 +194,9 @@
         return;
       }
       var user = data.users.find(function(u){ return u.id === userId; }) || data.users[0];
-
-      // Load profile data from database
       var profRes  = await fetch(BASE_URL + "/users/profile/" + userId);
       var profData = await profRes.json();
       var dbProfile = (profData.success && profData.profile) ? profData.profile : {};
-
       renderProfile(user, dbProfile);
     } catch(e) {
       showError("Could not load profile. Please check your connection.");
@@ -150,9 +204,7 @@
   }
 
   function renderProfile(u, dbProfile) {
-    // Merge db profile with any local data as fallback
     var profileData = dbProfile || {};
-
     var vis  = profileData.visibility || {};
     var name = u.full_name || "Unknown";
     var initials = name.split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
@@ -164,7 +216,6 @@
     html += '<div class="profile-card"><div class="profile-accent-bar"></div>';
     html += '<div class="profile-header">';
 
-    // Profile pic
     var picHtml = profileData.profile_pic
       ? '<img src="'+escHtml(profileData.profile_pic)+'" style="object-position:center top;">'
       : initials;
@@ -203,7 +254,6 @@
       html += sec("🏆 Achievements & Certifications", achievItems(profileData.achievements));
     }
 
-    // If no sections visible
     if (html.indexOf('section-card') === -1) {
       html += '<div class="state-card"><div class="state-icon">👤</div><h3>Profile is private</h3><p>This user has not made their profile sections public yet.</p></div>';
     }
@@ -244,6 +294,20 @@
   function showError(msg) {
     document.getElementById("mainContent").innerHTML = '<div class="state-card"><div class="state-icon">😔</div><h3>Profile not found</h3><p>'+msg+'</p></div>';
   }
+
+  function toggleMobileNav() {
+    document.getElementById("mobileNav").classList.toggle("open");
+    document.getElementById("hamburger").classList.toggle("active");
+  }
+  document.addEventListener("click", function(e) {
+    var nav = document.getElementById("mobileNav");
+    var btn = document.getElementById("hamburger");
+    if (nav && btn && !nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove("open");
+      btn.classList.remove("active");
+    }
+  });
+
   function logout() { if (confirm("Logout?")) { sessionStorage.removeItem("user"); window.location.href = "../index.html"; } }
   function escHtml(t) { if(!t)return""; return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 </script>

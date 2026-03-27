@@ -157,3 +157,24 @@ h1 {
         font-size: 24px;
     }
 }
+/* ── MOBILE IMPROVEMENTS ── */
+@media (max-width: 480px) {
+  body { padding: 16px; align-items: flex-start; padding-top: 40px; }
+
+  .container { padding: 28px 20px; border-radius: 16px; }
+
+  .logo img { width: 110px; }
+
+  h1 { font-size: 22px; }
+  .subtitle { font-size: 14px; margin-bottom: 28px; }
+
+  .signup-option { padding: 18px 16px; margin-bottom: 14px; }
+
+  .option-icon { width: 42px; height: 42px; font-size: 20px; margin-right: 12px; }
+
+  .option-title { font-size: 15px; }
+
+  .option-description { font-size: 13px; margin-left: 54px; }
+
+  .verified-badge { font-size: 11px; padding: 3px 8px; }
+}

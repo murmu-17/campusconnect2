@@ -89,13 +89,13 @@
     .empty-state { text-align: center; padding: 28px; color: var(--muted); font-size: 13px; }
     .vis-banner { background: linear-gradient(135deg, var(--gold-light), #fff); border: 1px solid #f0d89a; border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
     .vis-banner-text { font-size: 13px; color: var(--dark); font-weight: 500; display: flex; align-items: center; gap: 8px; }
-    .vis-banner-actions { display: flex; gap: 8px; }
+    .vis-banner-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .vis-banner-btn { padding: 6px 16px; border-radius: 20px; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
     .vis-banner-btn.primary { background: var(--gold); color: white; }
     .vis-banner-btn.primary:hover { background: var(--dark); }
     .vis-banner-btn.secondary { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
     .vis-banner-btn.secondary:hover { border-color: var(--dark); color: var(--dark); }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
     .modal-box { background: white; border-radius: 20px; padding: 28px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
     .modal-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
@@ -119,16 +119,84 @@
     .preview-visible-badge { background: #e8f5e9; color: #2e7d32; font-size: 10px; padding: 2px 8px; border-radius: 10px; text-transform: none; letter-spacing: 0; font-weight: 600; }
     input[type="file"] { display: none; }
     footer { background: var(--dark); color: white; text-align: center; padding: 18px; font-size: 13px; margin-top: 20px; }
-    @media (max-width: 640px) {
+
+    /* ── HAMBURGER ── */
+    .hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
+    .hamburger span { display:block; width:22px; height:2px; background:var(--text); border-radius:4px; transition:0.3s; }
+    .hamburger.active span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity:0; }
+    .hamburger.active span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+    .mobile-nav { display:none; flex-direction:column; background:var(--white); padding:12px 20px; box-shadow:0 4px 12px rgba(0,0,0,0.08); position:sticky; top:57px; z-index:199; }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { text-decoration:none; color:var(--text); font-size:15px; font-weight:500; padding:12px 0; border-bottom:1px solid #f5f0ea; }
+    .mobile-nav a:last-child { border-bottom:none; }
+    .mobile-nav a.active { color:var(--gold); font-weight:600; }
+
+    /* ── MOBILE ONLY ── */
+    @media (max-width: 768px) {
       nav { padding: 12px 16px; }
       .nav-links { display: none; }
-      .main { padding: 16px 12px; }
-      .profile-header { grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 24px 20px; }
+      .btn-logout { padding: 7px 12px; font-size: 12px; }
+      .hamburger { display: flex; }
+
+      .main { padding: 14px 12px 40px; gap: 12px; }
+
+      /* Vis banner stacks */
+      .vis-banner { flex-direction: column; align-items: flex-start; padding: 14px 16px; gap: 12px; }
+      .vis-banner-actions { width: 100%; justify-content: space-between; }
+      .vis-banner-btn { flex: 1; text-align: center; padding: 8px 10px; font-size: 11px; }
+
+      /* Profile header stacks */
+      .profile-header {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+        padding: 20px 16px;
+        gap: 16px;
+      }
+      .profile-name { font-size: 20px; }
+      .profile-name-row { justify-content: center; }
+      .profile-headline { font-size: 13px; }
       .profile-meta { justify-content: center; }
-      .profile-actions { align-items: center; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-      .section-header { padding: 16px 18px 14px; }
-      .section-body { padding: 14px 18px 18px; }
-      .form-row { grid-template-columns: 1fr; }
+      .meta-pill { font-size: 11px; padding: 4px 10px; }
+
+      /* Profile actions side by side */
+      .profile-actions {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .btn-edit, .btn-preview { padding: 8px 16px; font-size: 12px; }
+
+      /* Section headers */
+      .section-header { padding: 14px 16px 12px; flex-wrap: wrap; gap: 8px; }
+      .section-header-right { gap: 6px; }
+      .vis-toggle { font-size: 10px; padding: 3px 8px; }
+      .btn-add { font-size: 11px; padding: 5px 12px; }
+      .section-body { padding: 12px 16px 16px; }
+
+      /* Exp items */
+      .exp-icon { width: 36px; height: 36px; font-size: 16px; }
+      .exp-title { font-size: 13px; }
+      .exp-company, .exp-date { font-size: 11px; }
+      .exp-desc { font-size: 12px; }
+
+      /* Skills */
+      .skill-tag { font-size: 12px; padding: 5px 12px; }
+
+      /* Modals */
+      .modal-box { padding: 22px 18px; border-radius: 16px; max-height: 85vh; }
+      .modal-title { font-size: 16px; }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .modal-actions { flex-direction: column; }
+      .modal-actions .btn-cancel,
+      .modal-actions .btn-save { width: 100%; text-align: center; padding: 12px; }
+
+      /* Preview modal */
+      .preview-header { padding: 16px 20px; margin: -22px -18px 18px; }
+      .preview-header h3 { font-size: 14px; }
     }
   </style>
 </head>
@@ -145,19 +213,29 @@
   <div class="nav-right">
     <div class="nav-avatar" id="navAvatar">?</div>
     <button class="btn-logout" onclick="logout()">Logout</button>
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="dashboard.html">📊 Dashboard</a>
+  <a href="network.html">🤝 Network</a>
+  <a href="chat.html">💬 Messages</a>
+  <a href="profile.html" class="active">👤 Profile</a>
+</div>
 
 <div class="main">
 
   <div class="vis-banner">
     <div class="vis-banner-text">
-      👁️ <span>Control what others see on your public profile. Toggle sections below.</span>
+      👁️ <span>Control what others see on your public profile.</span>
     </div>
     <div class="vis-banner-actions">
       <button class="vis-banner-btn secondary" onclick="setAllVisibility(false)">🔒 Hide All</button>
       <button class="vis-banner-btn secondary" onclick="setAllVisibility(true)">🌐 Show All</button>
-      <button class="vis-banner-btn primary" onclick="openPreviewModal()">👁️ Preview Public</button>
+      <button class="vis-banner-btn primary" onclick="openPreviewModal()">👁️ Preview</button>
     </div>
   </div>
 
@@ -265,7 +343,7 @@
 
   <div class="section-card">
     <div class="section-header">
-      <div class="section-header-left"><div class="section-title">🏆 Achievements & Certifications</div></div>
+      <div class="section-header-left"><div class="section-title">🏆 Achievements</div></div>
       <div class="section-header-right">
         <button class="vis-toggle" id="vis-achievements" onclick="toggleVisibility('achievements')"><span class="vis-dot"></span><span class="vis-label">Public</span></button>
         <button class="btn-add" onclick="openAchievModal()">+ Add</button>
@@ -392,7 +470,7 @@
 <!-- PUBLIC PREVIEW MODAL -->
 <div class="modal-overlay" id="previewModal" style="display:none;">
   <div class="modal-box preview-modal">
-    <div class="preview-header"><h3>👁️ Public Profile Preview</h3><span>This is what others see</span></div>
+    <div class="preview-header"><h3>👁️ Public Profile Preview</h3><span>What others see</span></div>
     <div id="previewContent"></div>
     <div class="modal-actions"><button class="btn-save" onclick="closeModal('previewModal')">Close</button></div>
   </div>
@@ -413,7 +491,6 @@
   var editingExp=-1, editingIntern=-1, editingEdu=-1, editingProj=-1, editingAchiev=-1;
   var SECTIONS = ['about','experience','internships','education','projects','skills','achievements'];
 
-  // ── LOAD PROFILE FROM DB ON START ──
   async function loadProfileFromDB() {
     try {
       var res = await fetch(BASE_URL + "/users/profile/" + user.id);
@@ -436,7 +513,6 @@
     init();
   }
 
-  // ── SAVE TO BOTH LOCALSTORAGE AND DATABASE ──
   function save() {
     localStorage.setItem("cc_profile_" + user.id, JSON.stringify(profileData));
     fetch(BASE_URL + "/users/profile/save", {
@@ -458,7 +534,6 @@
     }).catch(function(e){ console.log("Profile sync error:", e); });
   }
 
-  // ── VISIBILITY ──
   function toggleVisibility(section) { profileData.visibility[section] = !profileData.visibility[section]; save(); updateVisToggle(section); }
   function updateVisToggle(section) {
     var btn = document.getElementById('vis-' + section);
@@ -475,7 +550,6 @@
   function setAllVisibility(val) { SECTIONS.forEach(function(s) { profileData.visibility[s] = val; }); save(); SECTIONS.forEach(updateVisToggle); }
   function updateAllToggles() { SECTIONS.forEach(updateVisToggle); }
 
-  // ── PUBLIC PREVIEW ──
   function openPreviewModal() {
     var name = profileData.full_name || user.full_name || "User";
     var html = '<div style="margin-bottom:18px;">';
@@ -498,7 +572,7 @@
       var isPublic = profileData.visibility[s];
       var badge = isPublic ? '<span class="preview-visible-badge">✓ Visible</span>' : '<span class="preview-hidden-badge">🔒 Hidden</span>';
       html += '<div class="preview-section"><div class="preview-section-title">'+sectionNames[s]+' '+badge+'</div>';
-      if (!isPublic) { html += '<div style="font-size:13px;color:var(--muted);font-style:italic;">This section is hidden from your public profile.</div>'; }
+      if (!isPublic) { html += '<div style="font-size:13px;color:var(--muted);font-style:italic;">Hidden from public profile.</div>'; }
       else { html += renderPreviewSection(s); }
       html += '</div>';
     });
@@ -521,7 +595,6 @@
     }).join('');
   }
 
-  // ── INIT ──
   function init() {
     var name = profileData.full_name || user.full_name || "User";
     var initials = name.split(" ").map(function(w){return w[0];}).join("").toUpperCase().slice(0,2);
@@ -551,7 +624,6 @@
     updateAllToggles();
   }
 
-  // ── UPLOADS ──
   function uploadProfilePic(input) {
     var file = input.files[0]; if (!file) return;
     if (file.size > 3*1024*1024) { alert("Max 3MB."); return; }
@@ -579,7 +651,6 @@
     document.getElementById("navAvatar").textContent = ini;
   }
 
-  // ── EDIT PROFILE ──
   function openEditProfile() {
     document.getElementById("editName").value = profileData.full_name || user.full_name || "";
     document.getElementById("editHeadline").value = profileData.headline || "";
@@ -599,14 +670,12 @@
     save(); closeModal("editProfileModal"); init();
   }
 
-  // ── ABOUT ──
   function openAboutModal() { document.getElementById("aboutInput").value = profileData.about||""; document.getElementById("aboutModal").style.display="flex"; }
   function saveAbout() {
     profileData.about = document.getElementById("aboutInput").value.trim(); save(); closeModal("aboutModal");
     document.getElementById("aboutContent").innerHTML = profileData.about ? '<div class="about-text">'+escHtml(profileData.about)+'</div>' : '<div class="about-placeholder">Tell others about yourself.</div>';
   }
 
-  // ── EXPERIENCE ──
   function openExpModal(idx) {
     editingExp = idx !== undefined ? idx : -1;
     document.getElementById("expModalTitle").textContent = editingExp>=0 ? "Edit Experience" : "Add Experience";
@@ -629,7 +698,6 @@
   }
   function deleteExp(i){if(confirm("Remove this?")){profileData.experience.splice(i,1);save();renderExperience();}}
 
-  // ── INTERNSHIPS ──
   function openInternModal(idx) {
     editingIntern=idx!==undefined?idx:-1;
     document.getElementById("internModalTitle").textContent=editingIntern>=0?"Edit Internship":"Add Internship";
@@ -652,7 +720,6 @@
   }
   function deleteIntern(i){if(confirm("Remove this?")){profileData.internships.splice(i,1);save();renderInternships();}}
 
-  // ── EDUCATION ──
   function openEduModal(idx) {
     editingEdu=idx!==undefined?idx:-1;
     document.getElementById("eduModalTitle").textContent=editingEdu>=0?"Edit Education":"Add Education";
@@ -678,7 +745,6 @@
   }
   function deleteEdu(i){if(confirm("Remove this?")){profileData.education.splice(i,1);save();renderEducation();}}
 
-  // ── PROJECTS ──
   function openProjectModal(idx) {
     editingProj=idx!==undefined?idx:-1;
     document.getElementById("projectModalTitle").textContent=editingProj>=0?"Edit Project":"Add Project";
@@ -705,7 +771,6 @@
   }
   function deleteProject(i){if(confirm("Remove this?")){profileData.projects.splice(i,1);save();renderProjects();}}
 
-  // ── SKILLS ──
   function openSkillModal(){document.getElementById("skillInput").value="";document.getElementById("skillModal").style.display="flex";setTimeout(function(){document.getElementById("skillInput").focus();},100);}
   function saveSkill(){
     var s=document.getElementById("skillInput").value.trim();if(!s){alert("Enter a skill.");return;}
@@ -720,7 +785,6 @@
     list.innerHTML='<div class="skills-grid">'+profileData.skills.map(function(s,i){return '<div class="skill-tag">'+escHtml(s)+'<span class="remove-skill" onclick="removeSkill('+i+')">✕</span></div>';}).join("")+'</div>';
   }
 
-  // ── ACHIEVEMENTS ──
   function openAchievModal(idx){
     editingAchiev=idx!==undefined?idx:-1;
     document.getElementById("achievModalTitle").textContent=editingAchiev>=0?"Edit Achievement":"Add Achievement";
@@ -746,7 +810,6 @@
   }
   function deleteAchiev(i){if(confirm("Remove this?")){profileData.achievements.splice(i,1);save();renderAchievements();}}
 
-  // ── HELPERS ──
   function expItemHTML(e,i,editFn,deleteFn,icon){
     var ds="";
     if(e.start){var s=new Date(e.start+"-01").toLocaleDateString("en-IN",{month:"short",year:"numeric"});var en=e.end?new Date(e.end+"-01").toLocaleDateString("en-IN",{month:"short",year:"numeric"}):"Present";ds=s+" – "+en;}
@@ -754,12 +817,25 @@
   }
   function closeModal(id){document.getElementById(id).style.display="none";}
   function escHtml(t){if(!t)return"";return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+  function toggleMobileNav() {
+    document.getElementById("mobileNav").classList.toggle("open");
+    document.getElementById("hamburger").classList.toggle("active");
+  }
+  document.addEventListener("click", function(e) {
+    var nav = document.getElementById("mobileNav");
+    var btn = document.getElementById("hamburger");
+    if (nav && btn && !nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove("open");
+      btn.classList.remove("active");
+    }
+  });
+
   function logout(){if(confirm("Logout?")){sessionStorage.removeItem("user");window.location.href="index.html";}}
 
   document.querySelectorAll(".modal-overlay").forEach(function(m){m.addEventListener("click",function(e){if(e.target===m)m.style.display="none";});});
   document.getElementById("skillInput").addEventListener("keydown",function(e){if(e.key==="Enter")saveSkill();});
 
-  // Load from DB first, then init
   loadProfileFromDB();
 </script>
 </body>

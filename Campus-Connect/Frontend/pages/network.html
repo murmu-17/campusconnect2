@@ -145,7 +145,7 @@
     .modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5); display: flex; align-items: center;
-      justify-content: center; z-index: 1000;
+      justify-content: center; z-index: 1000; padding: 16px;
     }
     .modal-box {
       background: white; border-radius: 20px; padding: 32px;
@@ -185,7 +185,6 @@
       font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
     }
 
-    /* General user banner */
     .general-banner {
       background: #e3f2fd; border: 1.5px solid #90caf9; border-radius: 12px;
       padding: 12px 18px; margin-bottom: 20px; font-size: 13px; color: #1565c0;
@@ -194,12 +193,54 @@
 
     select option:disabled { color: #bbb; font-style: italic; }
 
+    /* ── HAMBURGER ── */
+    .hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
+    .hamburger span { display:block; width:22px; height:2px; background:var(--text); border-radius:4px; transition:0.3s; }
+    .hamburger.active span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity:0; }
+    .hamburger.active span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+    .mobile-nav { display:none; flex-direction:column; background:var(--white); padding:12px 20px; box-shadow:0 4px 12px rgba(0,0,0,0.08); position:sticky; top:57px; z-index:99; }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { text-decoration:none; color:var(--text); font-size:15px; font-weight:500; padding:12px 0; border-bottom:1px solid #f5f0ea; }
+    .mobile-nav a:last-child { border-bottom:none; }
+    .mobile-nav a.active { color:var(--gold); font-weight:600; }
+
+    /* ── MOBILE ONLY ── */
     @media (max-width: 768px) {
-      nav { padding: 14px 16px; }
+      nav { padding: 12px 16px; }
       .nav-links { display: none; }
-      .main { padding: 20px 16px; }
-      .search-bar { flex-direction: column; }
+      .inbox-btn { padding: 7px 12px; font-size: 12px; }
+      .btn-logout { padding: 7px 12px; font-size: 12px; }
+      .hamburger { display: flex; }
+
+      .main { padding: 16px 14px; }
+
+      .page-header h1 { font-size: 20px; }
+      .page-header p  { font-size: 13px; }
+
+      /* Search bar stacks vertically */
+      .search-bar { padding: 16px; flex-direction: column; gap: 10px; border-radius: 14px; }
       .search-field { min-width: 100%; }
+
+      /* Search buttons side by side */
+      .search-bar .btn-search,
+      .search-bar .btn-clear { width: 100%; padding: 12px; font-size: 14px; }
+
+      /* People grid — 1 column on mobile */
+      .people-grid { grid-template-columns: 1fr; gap: 12px; }
+
+      /* Person card */
+      .person-card { padding: 18px 16px; border-radius: 14px; }
+      .person-name { font-size: 14px; }
+      .person-avatar { width: 46px; height: 46px; font-size: 16px; }
+
+      /* Modal full width */
+      .modal-box { padding: 24px 18px; border-radius: 16px; }
+      .modal-actions { flex-direction: column; }
+      .modal-actions .btn-cancel,
+      .modal-actions .btn-submit { width: 100%; text-align: center; }
+
+      .general-banner { font-size: 12px; padding: 10px 14px; }
     }
   </style>
 </head>
@@ -219,8 +260,19 @@
     </button>
     <div class="nav-avatar" id="navAvatar">?</div>
     <button class="btn-logout" onclick="logout()">Logout</button>
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="dashboard.html">📊 Dashboard</a>
+  <a href="network.html" class="active">🤝 Network</a>
+  <a href="chat.html">💬 Messages</a>
+  <a href="contact.html">📞 Contact</a>
+</div>
 
 <div class="main">
   <div class="page-header">
@@ -228,7 +280,6 @@
     <p>Search and connect with verified students and alumni from IITs, NITs and IIITs</p>
   </div>
 
-  <!-- General user info banner -->
   <div class="general-banner" id="generalBanner" style="display:none;">
     ℹ️ As a general user you can browse the network and send <strong>message requests</strong> to verified students.
   </div>
@@ -319,7 +370,7 @@
   </div>
 </div>
 
-<!-- FIXED DROPDOWN -->
+<!-- FLOATING DROPDOWN -->
 <div id="floatingDropdown" style="display:none; position:fixed; z-index:99999; background:white; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.18); min-width:175px; border:1px solid #e0d5c7; overflow:hidden;" onmousedown="event.stopPropagation()">
   <button class="dropdown-item" id="ddViewProfile" onclick="ddAction('view')">👤 View Profile</button>
   <div class="dropdown-divider"></div>
@@ -338,7 +389,6 @@
 
   var isVerified = currentUser.account_type === "verified" && currentUser.verification_status === "approved";
 
-  // Show general user banner
   if (!isVerified) {
     document.getElementById("generalBanner").style.display = "flex";
   }
@@ -346,21 +396,18 @@
   var initials = (currentUser.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
   document.getElementById("navAvatar").textContent = initials;
 
-  // ── Load institutes dropdown ──
   async function loadInstituteDropdown() {
     try {
       var res  = await fetch(BASE_URL + "/social/institutes");
       var data = await res.json();
       var sel  = document.getElementById("f_institute");
       sel.innerHTML = '<option value="">All Institutes</option>';
-
       if (data.success && data.institutes) {
         var groups = {};
         data.institutes.forEach(function(inst) {
           if (!groups[inst.category]) groups[inst.category] = [];
           groups[inst.category].push(inst);
         });
-
         Object.keys(groups).forEach(function(cat) {
           var grp = document.createElement("optgroup");
           grp.label = cat;
@@ -373,7 +420,6 @@
               opt.value = "";
               opt.textContent = "🔒 " + inst.name + " (Coming Soon)";
               opt.disabled = true;
-              opt.style.color = "#bbb";
             }
             grp.appendChild(opt);
           });
@@ -381,15 +427,13 @@
         });
       }
     } catch(e) {
-      var sel = document.getElementById("f_institute");
-      sel.innerHTML = '<option value="">All Institutes</option><option>IIT Mandi</option>';
+      document.getElementById("f_institute").innerHTML = '<option value="">All Institutes</option><option>IIT Mandi</option>';
     }
   }
 
   loadInstituteDropdown();
   doSearch();
 
-  // ── Search ──
   async function doSearch() {
     var name      = document.getElementById("f_name").value.trim();
     var institute = document.getElementById("f_institute").value;
@@ -449,14 +493,11 @@
     }
   }
 
-  // ── Start Chat or Send Request based on user type ──
   function startChat(userId, userName) {
     if (isVerified) {
-      // Verified user — go directly to chat
       sessionStorage.setItem("chatWith", JSON.stringify({ id: userId, name: userName }));
       window.location.href = "chat.html";
     } else {
-      // General user — send message request
       sendMessageRequest(userId, userName);
     }
   }
@@ -465,12 +506,11 @@
     if (!confirm("Send a message request to " + userName + "?")) return;
     try {
       var res = await fetch(BASE_URL + "/social/message-request", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
+        method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ sender_id: currentUser.id, receiver_id: userId })
       });
       var data = await res.json();
-      if (data.success) alert("Message request sent to " + userName + "! You will be notified when they accept.");
+      if (data.success) alert("Message request sent to " + userName + "!");
       else alert("Error: " + data.message);
     } catch(e) { alert("Network error."); }
   }
@@ -525,7 +565,7 @@
   }
 
   async function openBlock(userId, userName) {
-    if (!confirm("Block " + userName + "? They won't be able to see you or message you.")) return;
+    if (!confirm("Block " + userName + "?")) return;
     try {
       var res = await fetch(BASE_URL + "/social/block", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -557,10 +597,23 @@
         body: JSON.stringify({ reporter_id: currentUser.id, reported_id: reportTargetId, reason, details })
       });
       var data = await res.json();
-      if (data.success) { alert("Report submitted. Our admin team will review it within 24 hours."); closeReportModal(); }
+      if (data.success) { alert("Report submitted."); closeReportModal(); }
       else alert("Error: " + data.message);
     } catch(e) { alert("Network error."); }
   }
+
+  function toggleMobileNav() {
+    document.getElementById("mobileNav").classList.toggle("open");
+    document.getElementById("hamburger").classList.toggle("active");
+  }
+  document.addEventListener("click", function(e) {
+    var nav = document.getElementById("mobileNav");
+    var btn = document.getElementById("hamburger");
+    if (nav && btn && !nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove("open");
+      btn.classList.remove("active");
+    }
+  });
 
   function logout() {
     if (confirm("Are you sure you want to logout?")) {
