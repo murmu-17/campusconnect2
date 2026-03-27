@@ -76,34 +76,58 @@ var instituteMap = {
 
 document.getElementById("email").addEventListener("blur", function() {
   var subtype = document.getElementById("user_subtype").value;
-  if (subtype !== "student") return; // only auto-detect for students
+  if (subtype !== "student") return;
 
   var email = this.value.toLowerCase();
   var instituteSelect = document.getElementById("institute");
 
-  // Extract the subdomain part e.g. "iitmandi" from "b20021@students.iitmandi.ac.in"
   var parts = email.split("@");
   if (parts.length < 2) return;
-  var domain = parts[1]; // e.g. students.iitmandi.ac.in
+  var domain = parts[1];
 
+  var detected = false;
   for (var key in instituteMap) {
     if (domain.includes(key)) {
-      instituteSelect.value = instituteMap[key];
-      // Show a small hint to user
+      // Set and lock dropdown
+      instituteSelect.value             = instituteMap[key];
+      instituteSelect.disabled          = true;
+      instituteSelect.style.background  = "#f0f9f0";
+      instituteSelect.style.borderColor = "#a5d6a7";
+      instituteSelect.title             = "Institute locked based on your email";
+
+      // Save to hidden input so disabled select still submits
+      document.getElementById("institute_locked").value = instituteMap[key];
+
+      // Show green hint
       var hint = document.getElementById("emailHint");
       if (hint) {
-        hint.textContent = "✅ Institute auto-detected: " + instituteMap[key];
-        hint.style.color = "#2e7d32";
+        hint.textContent      = "✅ Institute auto-detected: " + instituteMap[key];
+        hint.style.color      = "#2e7d32";
         hint.style.fontWeight = "600";
       }
+
+      detected = true;
+      updateProgress();
       break;
+    }
+  }
+
+  // If not detected, unlock dropdown
+  if (!detected) {
+    instituteSelect.disabled          = false;
+    instituteSelect.style.background  = "";
+    instituteSelect.style.borderColor = "";
+    document.getElementById("institute_locked").value = "";
+    var hint = document.getElementById("emailHint");
+    if (hint) {
+      hint.textContent      = "Must be an official institute email (iit, nit, iiit, iisc domain)";
+      hint.style.color      = "";
+      hint.style.fontWeight = "";
     }
   }
 });
 
 // ── Send OTP ──
-// For students: calls /otp/send-institute (validates institute domain)
-// For alumni:   calls /otp/send (works with any email)
 async function sendOtp() {
   var email   = document.getElementById("email").value.trim();
   var subtype = document.getElementById("user_subtype").value;
@@ -118,8 +142,6 @@ async function sendOtp() {
   btn.textContent = "Sending...";
 
   try {
-    // Students must use institute email — use strict endpoint
-    // Alumni can use any email — use general OTP endpoint
     var endpoint = subtype === "student"
       ? BASE_URL + "/otp/send-institute"
       : BASE_URL + "/otp/send";
@@ -213,19 +235,25 @@ document.getElementById("verifiedForm").addEventListener("submit", async functio
 
   var subtype = document.getElementById("user_subtype").value;
 
-  // OTP must always be verified
   if (!otpVerified) {
     alert("Please verify your email with OTP before submitting.");
     return;
   }
 
-  // Alumni must upload a document
   if (subtype === "alumni") {
     var docFile = document.getElementById("docFile");
     if (!docFile.files || docFile.files.length === 0) {
       alert("Alumni must upload a verification document (degree certificate, convocation letter, etc.)");
       return;
     }
+  }
+
+  // Re-enable institute select before submit so value is included in FormData
+  var instituteLocked = document.getElementById("institute_locked").value;
+  if (instituteLocked) {
+    var sel = document.getElementById("institute");
+    sel.disabled = false;
+    sel.value    = instituteLocked;
   }
 
   var btn = document.getElementById("submitBtn");
@@ -247,14 +275,12 @@ document.getElementById("verifiedForm").addEventListener("submit", async functio
       document.getElementById("successMsg").style.display  = "block";
 
       if (subtype === "student") {
-        // Student — instantly verified
         document.getElementById("successIcon").textContent  = "✅";
         document.getElementById("successTitle").textContent = "You're Verified!";
         document.getElementById("successText").innerHTML    =
           "Your institute email was verified successfully.<br><br>" +
           "<strong style='color:#2e7d32;'>Your account is now active!</strong> You can login and start connecting.";
       } else {
-        // Alumni — pending admin review
         document.getElementById("successIcon").textContent  = "⏳";
         document.getElementById("successTitle").textContent = "Application Submitted!";
         document.getElementById("successText").innerHTML    =
