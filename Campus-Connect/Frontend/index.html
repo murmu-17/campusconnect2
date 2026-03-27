@@ -4,39 +4,30 @@
   <meta charset="UTF-8">
   <title>Campus Connect</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+  <!-- External CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
   <!-- NAVBAR -->
   <nav>
-    <h2>🎓 Campus Connect</h2>
+    <h2>Campus Connect</h2>
     <ul>
       <li><a href="index.html">Home</a></li>
       <li><a href="#">About</a></li>
       <li><a href="pages/contact.html">Contact</a></li>
-      <li class="nav-divider"></li>
-      <li><a href="pages/company-login.html" class="nav-company">🏢 For Companies</a></li>
     </ul>
-    <button class="hamburger" onclick="toggleMenu()" id="hamburger">
-      <span></span><span></span><span></span>
-    </button>
   </nav>
-
-  <!-- MOBILE MENU -->
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="index.html">Home</a>
-    <a href="#">About</a>
-    <a href="pages/contact.html">Contact</a>
-    <div class="mobile-divider"></div>
-    <a href="pages/company-login.html"  class="mobile-company">🏢 Company Login</a>
-    <a href="pages/company-signup.html" class="mobile-company-reg">Register Company</a>
-  </div>
 
   <!-- HERO SECTION -->
   <section class="hero">
     <div class="logo">
+      <!-- FIXED IMAGE PATH -->
       <img src="images/logo.png" alt="Campus Connect Logo">
     </div>
 
@@ -45,36 +36,31 @@
       <span class="connect">Connect</span>
     </h1>
 
-    <p class="tagline">An initiative to connect verified IITians & students</p>
+    <p class="tagline">
+      An initiative to connect verified IITians & students
+    </p>
 
     <div class="buttons">
       <button class="signup" onclick="window.location.href='pages/signup.html'">Sign Up</button>
-      <button class="login"  onclick="window.location.href='pages/login.html'">Login</button>
+      <button class="login" onclick="window.location.href='pages/login.html'">Login</button>
     </div>
-
-    <!-- COMPANY BAR -->
-    <div class="company-bar">
-      <span class="company-label">Are you a recruiter?</span>
-      <div class="company-links">
-        <a href="pages/company-login.html"  class="btn-company-login">🏢 Company Login</a>
-        <a href="pages/company-signup.html" class="btn-company-register">Register Company</a>
-      </div>
-    </div>
-
   </section>
 
   <!-- FEATURES -->
   <section class="features">
     <h2>Why Campus Connect?</h2>
+
     <div class="feature-boxes">
       <div class="feature">
         <h3>Verified IIT Network</h3>
         <p>Connect only with authenticated IIT students and alumni.</p>
       </div>
+
       <div class="feature">
         <h3>Career Guidance</h3>
         <p>Get mentorship and real career insights.</p>
       </div>
+
       <div class="feature">
         <h3>Secure Platform</h3>
         <p>Safe, transparent and professional communication.</p>
@@ -85,26 +71,15 @@
   <!-- TRUST SECTION -->
   <section class="trust">
     <h2>Built on Trust & Verification</h2>
-    <p>Every profile is verified to ensure authenticity and reliability.</p>
+    <p>
+      Every profile is verified to ensure authenticity and reliability.
+    </p>
   </section>
 
   <!-- FOOTER -->
-  <footer>© 2026 Campus Connect | All Rights Reserved</footer>
-
-  <script>
-    function toggleMenu() {
-      document.getElementById("mobileMenu").classList.toggle("open");
-      document.getElementById("hamburger").classList.toggle("active");
-    }
-    document.addEventListener("click", function(e) {
-      var menu = document.getElementById("mobileMenu");
-      var btn  = document.getElementById("hamburger");
-      if (!menu.contains(e.target) && !btn.contains(e.target)) {
-        menu.classList.remove("open");
-        btn.classList.remove("active");
-      }
-    });
-  </script>
+  <footer>
+    © 2026 Campus Connect | All Rights Reserved
+  </footer>
 
 </body>
 </html>
