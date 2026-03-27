@@ -78,4 +78,32 @@ router.post("/delete/:message_id", (req, res) => {
     }
   });
 });
+// ================= DELETE ENTIRE CHAT =================
+router.post("/delete-chat", (req, res) => {
+  const { user_id, other_user_id } = req.body;
+  if (!user_id || !other_user_id) {
+    return res.json({ success: false, message: "Missing user IDs" });
+  }
+
+  // Mark all messages deleted for this user (both sent and received)
+  db.query(
+    `UPDATE messages SET deleted_by_sender=1 
+     WHERE sender_id=? AND receiver_id=?`,
+    [user_id, other_user_id],
+    (err1) => {
+      if (err1) return res.json({ success: false, message: "DB error" });
+
+      db.query(
+        `UPDATE messages SET deleted_by_receiver=1 
+         WHERE sender_id=? AND receiver_id=?`,
+        [other_user_id, user_id],
+        (err2) => {
+          if (err2) return res.json({ success: false, message: "DB error" });
+          res.json({ success: true, message: "Chat deleted" });
+        }
+      );
+    }
+  );
+});
+
 module.exports = router;
