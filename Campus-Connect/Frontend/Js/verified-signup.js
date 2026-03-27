@@ -37,6 +37,70 @@ document.getElementById("docFile").addEventListener("change", function() {
   updateProgress();
 });
 
+// ── Auto-detect institute from email ──
+var instituteMap = {
+  "iitmandi":    "IIT Mandi",
+  "iitb":        "IIT Bombay",
+  "iitd":        "IIT Delhi",
+  "iitm":        "IIT Madras",
+  "iitk":        "IIT Kanpur",
+  "iitkgp":      "IIT Kharagpur",
+  "iitr":        "IIT Roorkee",
+  "iitg":        "IIT Guwahati",
+  "iith":        "IIT Hyderabad",
+  "iitj":        "IIT Jodhpur",
+  "iitp":        "IIT Patna",
+  "iitrpr":      "IIT Ropar",
+  "iitbbs":      "IIT Bhubaneswar",
+  "iitgn":       "IIT Gandhinagar",
+  "iiti":        "IIT Indore",
+  "iittirupati": "IIT Tirupati",
+  "iitism":      "IIT Dhanbad (ISM)",
+  "iitbhilai":   "IIT Bhilai",
+  "iitjammu":    "IIT Jammu",
+  "iitdharwad":  "IIT Dharwad",
+  "iitpkd":      "IIT Palakkad",
+  "iitgoa":      "IIT Goa",
+  "iitbhu":      "IIT Varanasi (BHU)",
+  "nitc":        "NIT Calicut",
+  "nitt":        "NIT Trichy",
+  "nitw":        "NIT Warangal",
+  "nitk":        "NIT Surathkal",
+  "nitrkl":      "NIT Rourkela",
+  "mnnit":       "NIT Allahabad",
+  "iiith":       "IIIT Hyderabad",
+  "iiita":       "IIIT Allahabad",
+  "iiitb":       "IIIT Bangalore",
+  "iisc":        "IISc Bangalore"
+};
+
+document.getElementById("email").addEventListener("blur", function() {
+  var subtype = document.getElementById("user_subtype").value;
+  if (subtype !== "student") return; // only auto-detect for students
+
+  var email = this.value.toLowerCase();
+  var instituteSelect = document.getElementById("institute");
+
+  // Extract the subdomain part e.g. "iitmandi" from "b20021@students.iitmandi.ac.in"
+  var parts = email.split("@");
+  if (parts.length < 2) return;
+  var domain = parts[1]; // e.g. students.iitmandi.ac.in
+
+  for (var key in instituteMap) {
+    if (domain.includes(key)) {
+      instituteSelect.value = instituteMap[key];
+      // Show a small hint to user
+      var hint = document.getElementById("emailHint");
+      if (hint) {
+        hint.textContent = "✅ Institute auto-detected: " + instituteMap[key];
+        hint.style.color = "#2e7d32";
+        hint.style.fontWeight = "600";
+      }
+      break;
+    }
+  }
+});
+
 // ── Send OTP ──
 // For students: calls /otp/send-institute (validates institute domain)
 // For alumni:   calls /otp/send (works with any email)
