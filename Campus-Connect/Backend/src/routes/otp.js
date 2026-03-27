@@ -38,7 +38,7 @@ router.post("/send-institute", (req, res) => {
   if (!EMAIL_REGEX.test(email))
     return res.json({ success: false, message: "Please enter a valid email address" });
   if (!isValidInstituteEmail(email))
-    return res.json({ success: false, message: "Email domain not recognized. Use your official institute email (e.g. b22078@students.iitmandi.ac.in)" });
+    return res.json({ success: false, message: "Email domain not recognized. Use your official institute email (e.g. b22000@students.iitmandi.ac.in)" });
 
   db.query("SELECT id FROM users WHERE email = ?", [email], async (err, rows) => {
     if (rows && rows.length > 0)

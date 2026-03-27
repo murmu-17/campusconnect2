@@ -65,7 +65,7 @@ router.post("/verified-signup", (req, res) => {
     }
     if (!isValidInstituteEmail(email)) {
       fs.unlinkSync(docFile.path);
-      return res.json({ success: false, message: "Email domain not recognized. Use your official institute email (e.g. b22078@students.iitmandi.ac.in)" });
+      return res.json({ success: false, message: "Email domain not recognized. Use your official institute email (e.g. b22000@students.iitmandi.ac.in)" });
     }
 
     const record = getOTP(email);
