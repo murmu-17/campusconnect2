@@ -720,7 +720,7 @@
   }
 
   function logout() {
-    if (confirm("Logout?")) { if (ws) ws.close(); sessionStorage.removeItem("user"); window.location.href = "index.html"; }
+    if (confirm("Logout?")) { if (ws) ws.close(); sessionStorage.removeItem("user"); window.location.href = "../index.html"; }
   }
 
   window.addEventListener("load", function() {
