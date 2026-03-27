@@ -86,7 +86,10 @@ document.getElementById("email").addEventListener("blur", function() {
   var domain = parts[1];
 
   var detected = false;
-  for (var key in instituteMap) {
+  // Sort keys longest first to avoid partial matches (e.g. "iitm" matching before "iitmandi")
+  var sortedKeys = Object.keys(instituteMap).sort(function(a, b) { return b.length - a.length; });
+  for (var i = 0; i < sortedKeys.length; i++) {
+    var key = sortedKeys[i];
     if (domain.includes(key)) {
       // Set and lock dropdown
       instituteSelect.value             = instituteMap[key];
