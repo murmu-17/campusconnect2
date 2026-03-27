@@ -477,6 +477,7 @@
     } catch(e) { console.error("Load messages error:", e); }
   }
 
+  // ── APPEND MESSAGE WITH SEEN INDICATOR ──
   function appendMessage(msg, isMine) {
     var area = document.getElementById("messagesArea");
     if (!area) return;
@@ -485,10 +486,19 @@
     var isDeleted = msg.deleted_for_everyone;
     var bubbleClass = "msg-bubble" + (isDeleted ? " deleted" : "");
     var bubbleContent = isDeleted ? "This message was deleted" : escapeHtml(msg.content);
+
+    // ── SEEN INDICATOR ──
+    var seenIndicator = "";
+    if (isMine && !isDeleted) {
+      seenIndicator = msg.is_read == 1
+        ? ' <span style="color:#4fc3f7;font-size:11px;" title="Seen">✓✓</span>'
+        : ' <span style="color:#aaa;font-size:11px;" title="Delivered">✓</span>';
+    }
+
     var div = document.createElement("div");
     div.className = "msg-row " + (isMine ? "mine" : "theirs");
     div.setAttribute("data-id", msg.id);
-    div.innerHTML = '<div class="msg-av">' + av + '</div><div class="msg-wrap"><div class="' + bubbleClass + '" onclick="' + (!isDeleted && isMine ? 'showDeleteMenu(event,' + msg.id + ',' + isMine + ')' : '') + '">' + bubbleContent + '</div><div class="msg-time">' + time + '</div></div>';
+    div.innerHTML = '<div class="msg-av">' + av + '</div><div class="msg-wrap"><div class="' + bubbleClass + '" onclick="' + (!isDeleted && isMine ? 'showDeleteMenu(event,' + msg.id + ',' + isMine + ')' : '') + '">' + bubbleContent + '</div><div class="msg-time">' + time + seenIndicator + '</div></div>';
     area.appendChild(div);
     scrollToBottom();
   }
