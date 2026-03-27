@@ -41,8 +41,29 @@
 
     #alumniFields { display:none; }
     #alumniFields.visible { display:block; }
-    #docSection { display:none; }
-    #docSection.visible { display:block; }
+
+    /* ── DOC LABEL BOX ── */
+    .doc-label-box {
+      padding:10px 14px; border-radius:10px;
+      font-size:12px; color:#7c5c00; margin-bottom:10px; line-height:1.6;
+      background:#fff8e1; border:1.5px solid #ffe082;
+    }
+    .doc-label-box.student { background:#e8f5e9; border-color:#a5d6a7; color:#2e7d32; }
+
+    /* ── DECLARATION ── */
+    .declaration-box {
+      background:#fdfaf7; border:1.5px solid #e0d5c7;
+      border-radius:12px; padding:16px; margin-top:20px;
+    }
+    .declaration-box label {
+      display:flex; align-items:flex-start; gap:10px;
+      font-size:13px; color:#4a3f35; cursor:pointer;
+      line-height:1.6; font-weight:400; margin:0;
+    }
+    .declaration-box input[type="checkbox"] {
+      width:18px; height:18px; flex-shrink:0;
+      margin-top:2px; accent-color:#b37a0f; cursor:pointer;
+    }
   </style>
 </head>
 <body>
@@ -77,11 +98,12 @@
         </div>
       </div>
 
+      <!-- Info boxes — updated messages -->
       <div class="verif-info-box student" id="verifInfoStudent">
-        ⚡ <strong>Current Students:</strong> Verify your institute email with OTP — you'll be <strong>instantly verified</strong>. No document needed!
+        📋 <strong>Current Students:</strong> Verify your institute email with OTP + upload your <strong>institute ID card</strong>. Admin will verify your details within 24 hours.
       </div>
       <div class="verif-info-box alumni" id="verifInfoAlumni">
-        📄 <strong>Alumni:</strong> Verify any email with OTP + upload a graduation document. Admin will review within 24–48 hours.
+        📄 <strong>Alumni:</strong> Verify any email with OTP + upload your <strong>degree certificate or convocation letter</strong>. Admin will review within 24–48 hours.
       </div>
 
       <!-- ── PERSONAL INFO ── -->
@@ -154,6 +176,8 @@
           <option value="IISc Bangalore">IISc Bangalore</option>
         </optgroup>
       </select>
+      <!-- Hidden input to carry locked institute value on submit -->
+      <input type="hidden" id="institute_locked" name="institute_locked" value="">
 
       <div class="row-2">
         <div>
@@ -232,18 +256,27 @@
       <label>Phone Number (Optional)</label>
       <input type="text" name="phone" id="phone" placeholder="+91 XXXXXXXXXX">
 
-      <!-- ── DOCUMENT (Alumni only) ── -->
-      <div id="docSection">
-        <hr class="section-divider">
-        <div class="section-title">📄 Alumni Verification Document</div>
-        <div class="file-upload-area" onclick="document.getElementById('docFile').click()">
-          <input type="file" name="document" id="docFile" accept=".pdf,.jpg,.jpeg,.png">
-          <div class="upload-icon">&#128196;</div>
-          <p>Click to browse file</p>
-          <p class="upload-sub">Accepted: PDF, JPG, PNG &middot; Max 5MB</p>
-          <div class="file-name" id="fileName"></div>
-        </div>
-        <p class="hint">Upload degree certificate, convocation letter, or any document showing your graduation</p>
+      <!-- ── DOCUMENT UPLOAD (Both student and alumni) ── -->
+      <hr class="section-divider">
+      <div class="section-title" id="docSectionTitle">📋 Verification Document</div>
+      <div class="doc-label-box student" id="docLabelBox">
+        Upload your <strong>institute ID card</strong> — admin will verify your name, batch, and branch match.
+      </div>
+      <div class="file-upload-area" onclick="document.getElementById('docFile').click()">
+        <input type="file" name="document" id="docFile" accept=".pdf,.jpg,.jpeg,.png" required>
+        <div class="upload-icon">&#128196;</div>
+        <p>Click to browse file</p>
+        <p class="upload-sub">Accepted: PDF, JPG, PNG &middot; Max 5MB</p>
+        <div class="file-name" id="fileName"></div>
+      </div>
+      <p class="hint" id="docHint">Upload your institute ID card clearly showing your name, batch, and branch</p>
+
+      <!-- ── DECLARATION CHECKBOX ── -->
+      <div class="declaration-box">
+        <label>
+          <input type="checkbox" id="declarationCheck" required>
+          I confirm that all details I have entered — including my full name, institute, batch, branch, and degree — are accurate and genuine. I understand that providing false information may result in permanent suspension of my account.
+        </label>
       </div>
 
       <input type="hidden" name="user_subtype" id="user_subtype" value="student">
@@ -253,11 +286,11 @@
   </div>
 
   <div class="success-msg" id="successMsg" style="display:none;">
-    <div class="icon" id="successIcon">✅</div>
-    <h2 id="successTitle">Verified!</h2>
+    <div class="icon" id="successIcon">⏳</div>
+    <h2 id="successTitle">Application Submitted!</h2>
     <p id="successText"></p>
     <br>
-    <a href="login.html" style="color:#b37a0f;font-weight:600;text-decoration:none;">Login Now →</a>
+    <a href="login.html" style="color:#b37a0f;font-weight:600;text-decoration:none;">Login once approved →</a>
   </div>
 
   <div class="back-link" id="backLink">
@@ -278,24 +311,29 @@
     document.getElementById("verifInfoStudent").style.display = type === "student" ? "block" : "none";
     document.getElementById("verifInfoAlumni").style.display  = type === "alumni"  ? "block" : "none";
 
+    var docLabelBox = document.getElementById("docLabelBox");
+    var docHint     = document.getElementById("docHint");
+
     if (type === "alumni") {
       document.getElementById("emailLabel").textContent     = "Email Address";
       document.getElementById("email").placeholder          = "Institute email or Gmail/personal email";
       document.getElementById("emailHint").textContent      = "You can use your old institute email or any personal email (Gmail, etc.)";
       document.getElementById("batchLabel").textContent     = "Graduation Year";
-      document.getElementById("docSection").classList.add("visible");
       document.getElementById("alumniFields").classList.add("visible");
-      document.getElementById("docFile").required = true;
+      document.getElementById("docSectionTitle").textContent = "📄 Alumni Verification Document";
+      docLabelBox.className = "doc-label-box";
+      docLabelBox.innerHTML = "Upload your <strong>degree certificate or convocation letter</strong> — admin will verify your graduation details.";
+      docHint.textContent   = "Upload degree certificate, convocation letter, or any document showing your graduation";
     } else {
       document.getElementById("emailLabel").textContent     = "Institute Email";
       document.getElementById("email").placeholder          = "yourname@iit__.ac.in";
       document.getElementById("emailHint").textContent      = "Must be an official institute email (iit, nit, iiit, iisc domain)";
       document.getElementById("batchLabel").textContent     = "Batch Year";
-      document.getElementById("docSection").classList.remove("visible");
       document.getElementById("alumniFields").classList.remove("visible");
-      document.getElementById("docFile").required = false;
-      document.getElementById("docFile").value    = "";
-      document.getElementById("fileName").textContent = "";
+      document.getElementById("docSectionTitle").textContent = "📋 Verification Document";
+      docLabelBox.className = "doc-label-box student";
+      docLabelBox.innerHTML = "Upload your <strong>institute ID card</strong> — admin will verify your name, batch, and branch match.";
+      docHint.textContent   = "Upload your institute ID card clearly showing your name, batch, and branch";
     }
   }
 
