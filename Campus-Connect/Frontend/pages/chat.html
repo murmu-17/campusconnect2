@@ -107,9 +107,19 @@
     .chat-header-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
     .chat-header-info h3 { font-size: 15px; font-weight: 700; color: var(--text); }
     .chat-header-info p { font-size: 12px; color: var(--muted); }
-    .chat-header-actions { margin-left: auto; display: flex; gap: 8px; }
+    .chat-header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
     .btn-danger-sm { padding: 7px 14px; border-radius: 20px; border: 1.5px solid #ffcdd2; background: transparent; color: #f44336; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-danger-sm:hover { background: #ffebee; }
+
+    /* ── DELETE CHAT BUTTON ── */
+    .btn-delete-chat {
+      padding: 7px 14px; border-radius: 20px;
+      border: 1.5px solid #e0d5c7; background: transparent;
+      color: var(--muted); font-family: 'Poppins', sans-serif;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .btn-delete-chat:hover { border-color: #ef9a9a; color: #c62828; background: #ffebee; }
 
     .messages-area { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 4px; background: var(--bg); }
 
@@ -129,7 +139,7 @@
     .date-sep { text-align: center; font-size: 11px; color: var(--muted); margin: 8px 0; }
     .date-sep span { background: #e8e0d5; padding: 3px 12px; border-radius: 20px; }
 
-    /* ── DELETE MENU ── */
+    /* ── DELETE MESSAGE MENU ── */
     .msg-delete-menu {
       position: absolute; background: white; border-radius: 10px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid var(--border);
@@ -151,6 +161,7 @@
     .btn-send:hover { background: var(--dark); }
     .btn-send:disabled { background: #ccc; cursor: not-allowed; }
 
+    /* ── MODALS ── */
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
     .modal-box { background: white; border-radius: 20px; padding: 32px; width: 90%; max-width: 420px; }
     .modal-box h3 { font-size: 18px; color: var(--text); margin-bottom: 6px; }
@@ -161,6 +172,31 @@
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
     .btn-cancel { padding: 10px 20px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; font-family: 'Poppins', sans-serif; font-size: 13px; cursor: pointer; color: var(--muted); }
     .btn-report { padding: 10px 20px; border-radius: 20px; border: none; background: #f44336; color: white; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+    /* ── DELETE CHAT MODAL ── */
+    .delete-chat-modal-box {
+      background: white; border-radius: 20px; padding: 32px;
+      width: 90%; max-width: 400px;
+      border-top: 4px solid #f44336;
+    }
+    .delete-chat-modal-box .dc-icon { font-size: 40px; text-align: center; margin-bottom: 12px; }
+    .delete-chat-modal-box h3 { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-align: center; }
+    .delete-chat-modal-box .dc-warning {
+      background: #fff8f8; border: 1.5px solid #ffcdd2; border-radius: 10px;
+      padding: 12px 14px; font-size: 12px; color: #c62828; margin: 14px 0 8px; line-height: 1.6;
+    }
+    .dc-note {
+      font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 4px;
+      padding: 8px 12px; background: #fdfaf7; border-radius: 8px; line-height: 1.5;
+    }
+    .dc-note strong { color: var(--text); }
+    .delete-chat-modal-box .modal-actions { margin-top: 20px; }
+    .btn-delete-confirm {
+      padding: 10px 20px; border-radius: 20px; border: none;
+      background: #f44336; color: white; font-family: 'Poppins', sans-serif;
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;
+    }
+    .btn-delete-confirm:hover { background: #c62828; }
 
     @media (max-width: 768px) {
       nav { padding: 12px 16px; }
@@ -233,6 +269,25 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeReport()">Cancel</button>
       <button class="btn-report" onclick="submitReport()">Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE ENTIRE CHAT MODAL ── -->
+<div class="modal" id="deleteChatModal" style="display:none;">
+  <div class="delete-chat-modal-box">
+    <div class="dc-icon">🗑️</div>
+    <h3>Delete Entire Chat?</h3>
+    <div class="dc-warning">
+      ⚠️ This will permanently delete <strong>all messages</strong> in this conversation from <strong>your side only</strong>.<br><br>
+      The other person will still be able to see their copy of this conversation.
+    </div>
+    <div class="dc-note">
+      <strong>Note:</strong> If a report has been filed involving this chat, admin may still have access to a read-only record for review purposes.
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDeleteChatModal()">Cancel</button>
+      <button class="btn-delete-confirm" onclick="confirmDeleteEntireChat()">🗑️ Delete Chat</button>
     </div>
   </div>
 </div>
@@ -380,6 +435,9 @@
         <div class="chat-header-avatar">${av}</div>
         <div class="chat-header-info"><h3>${userName}</h3><p>🏛️ ${institute || "—"}</p></div>
         <div class="chat-header-actions">
+          <button class="btn-delete-chat" onclick="openDeleteChatModal()" title="Delete entire chat">
+            🗑️ Delete Chat
+          </button>
           <button class="btn-danger-sm" onclick="blockUser(${userId}, '${userName.replace(/'/g,"")}')">Block</button>
           <button class="btn-danger-sm" onclick="openReport(${userId}, '${userName.replace(/'/g,"")}')">Report</button>
         </div>
@@ -476,6 +534,47 @@
         loadConversations();
       } else { alert("Error: " + data.message); }
     } catch(e) { alert("Network error."); }
+  }
+
+  // ── DELETE ENTIRE CHAT ──
+  function openDeleteChatModal() {
+    document.getElementById("deleteChatModal").style.display = "flex";
+  }
+
+  function closeDeleteChatModal() {
+    document.getElementById("deleteChatModal").style.display = "none";
+  }
+
+  async function confirmDeleteEntireChat() {
+    if (!activeChatUser) return;
+    closeDeleteChatModal();
+    try {
+      var res = await fetch(BASE_URL + "/messages/delete-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: currentUser.id,
+          other_user_id: activeChatUser.id
+        })
+      });
+      var data = await res.json();
+      if (data.success) {
+        // Reset chat area to empty state
+        activeChatUser = null;
+        document.getElementById("chatArea").innerHTML = `
+          <div class="chat-empty" id="chatEmpty">
+            <div class="icon">💬</div>
+            <h3>Chat Deleted</h3>
+            <p>Your conversation has been removed from your view.</p>
+            <button class="goto-network" onclick="window.location.href='network.html'">Find People →</button>
+          </div>`;
+        loadConversations();
+      } else {
+        alert("Error: " + (data.message || "Could not delete chat."));
+      }
+    } catch(e) {
+      alert("Network error. Please try again.");
+    }
   }
 
   function sendMessage() {
