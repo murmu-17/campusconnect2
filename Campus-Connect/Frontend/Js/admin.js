@@ -3,6 +3,88 @@ const BASE_URL = "https://conncam.in";
 var currentAdmin = null;
 var currentDisparityUserId = null;
 
+// ══════════════════════════════════════════════════
+//  USER TYPE BADGE SYSTEM
+//  Derives badge from institute name + batch + account_type
+//  No new DB column needed — works with existing schema
+// ══════════════════════════════════════════════════
+function getUserType(user) {
+  var institute = (user.institute || "").toUpperCase();
+  var batch     = parseInt(user.batch) || 0;
+  var now       = new Date().getFullYear();
+
+  // Alumni: verified user whose batch has already passed
+  if (user.account_type === "verified" && batch > 0 && batch < now) {
+    return "alumni";
+  }
+  // IITian: institute name starts with or contains IIT (but not IIIT)
+  if (institute.startsWith("IIT") && !institute.startsWith("IIIT")) {
+    return "iit";
+  }
+  // NITian: institute contains NIT or IIIT
+  if (institute.startsWith("NIT") || institute.startsWith("IIIT")) {
+    return "nit";
+  }
+  // School Student: general account (not verified, no institute)
+  if (user.account_type === "general" && !user.institute) {
+    return "school";
+  }
+  return "general";
+}
+
+// Returns the HTML pill badge for a user
+function userBadgeHtml(user, size) {
+  // size: "sm" = compact (tables), "md" = normal (cards)
+  var type = getUserType(user);
+  var map = {
+    iit:     { label: "IITian",         cls: "ub-iit"    },
+    nit:     { label: "NITian",         cls: "ub-nit"    },
+    alumni:  { label: "Alumni",         cls: "ub-alumni" },
+    school:  { label: "School Student", cls: "ub-school" },
+    general: { label: "General",        cls: "ub-general" }
+  };
+  var info    = map[type] || map.general;
+  var padding = size === "sm" ? "2px 8px" : "3px 10px";
+  var fsize   = size === "sm" ? "10px"    : "11px";
+  return '<span class="user-badge ' + info.cls + '" style="display:inline-flex;align-items:center;gap:4px;padding:' + padding + ';border-radius:999px;font-size:' + fsize + ';font-weight:600;letter-spacing:0.02em;white-space:nowrap;">' +
+         '<span class="ub-dot" style="width:5px;height:5px;border-radius:50%;flex-shrink:0;"></span>' +
+         info.label + '</span>';
+}
+
+// Inject badge CSS once into <head>
+(function injectBadgeCSS() {
+  if (document.getElementById("ub-styles")) return;
+  var style = document.createElement("style");
+  style.id = "ub-styles";
+  style.textContent = [
+    ".user-badge .ub-dot { display:inline-block; }",
+
+    /* IITian – Purple */
+    ".ub-iit    { background:#EEEDFE; color:#3C3489; }",
+    ".ub-iit    .ub-dot { background:#534AB7; }",
+
+    /* NITian / IIIT – Teal */
+    ".ub-nit    { background:#E1F5EE; color:#085041; }",
+    ".ub-nit    .ub-dot { background:#0F6E56; }",
+
+    /* Alumni – Amber */
+    ".ub-alumni { background:#FAEEDA; color:#633806; }",
+    ".ub-alumni .ub-dot { background:#854F0B; }",
+
+    /* School Student – Blue */
+    ".ub-school { background:#E6F1FB; color:#0C447C; }",
+    ".ub-school .ub-dot { background:#185FA5; }",
+
+    /* General – Gray */
+    ".ub-general { background:#F1EFE8; color:#5F5E5A; }",
+    ".ub-general .ub-dot { background:#888780; }"
+  ].join("\n");
+  document.head.appendChild(style);
+})();
+
+// ══════════════════════════════════════════════════
+//  EXISTING ADMIN CODE (with badges woven in)
+// ══════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", function() {
   var stored = sessionStorage.getItem("adminData");
   if (!stored) { window.location.href = "admin-login.html"; return; }
@@ -13,6 +95,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("tabInstitutes").style.display = "inline-block";
     document.getElementById("tabCompanies").style.display  = "inline-block";
     document.getElementById("tabReports").style.display    = "inline-block";
+    document.getElementById("tabChats").style.display      = "inline-block";
     document.getElementById("tabLogs").style.display       = "inline-block";
   }
   document.getElementById("detailModal").style.display    = "none";
@@ -28,7 +111,7 @@ function adminLogout() {
 }
 
 function showTab(tab) {
-  ["pending","all","verifiers","institutes","companies","reports","logs"].forEach(function(t) {
+  ["pending","all","verifiers","institutes","companies","reports","chats","logs"].forEach(function(t) {
     var tabEl = document.getElementById("tab-" + t);
     if (tabEl) tabEl.style.display = (t === tab) ? "block" : "none";
   });
@@ -41,9 +124,11 @@ function showTab(tab) {
   if (tab === "institutes") loadInstitutes();
   if (tab === "companies")  loadCompanies();
   if (tab === "reports")    loadReports();
+  if (tab === "chats")      loadReportedChats();
   if (tab === "logs")       loadLogs();
 }
 
+// ── PENDING VERIFICATIONS (badge added to card) ──
 async function loadPending() {
   document.getElementById("pendingList").innerHTML = '<p class="loading">Loading...</p>';
   try {
@@ -56,16 +141,20 @@ async function loadPending() {
       var docUrl = user.document_path ? BASE_URL + "/" + user.document_path : null;
       var date = new Date(user.created_at).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" });
       html += '<div class="user-card" id="card-' + user.id + '">';
-      html += '<div class="user-info"><h4>' + (user.full_name || "N/A") + '</h4><p class="email">' + (user.email || "N/A") + '</p>';
-      html += '<p><strong>Institute:</strong> ' + (user.institute || "N/A") + '</p>';
-      html += '<p><strong>Batch:</strong> ' + (user.batch || "N/A") + ' &nbsp;|&nbsp; <strong>Degree:</strong> ' + (user.degree || "N/A") + '</p>';
-      html += '<p><strong>Branch:</strong> ' + (user.branch || "N/A") + '</p><p><strong>Submitted:</strong> ' + date + '</p>';
-      if (user.disparity_message) html += '<p style="color:#e65100;margin-top:6px;font-size:12px;"><strong>Previous Disparity:</strong> ' + user.disparity_message + '</p>';
+      html += '<div class="user-info">';
+      // ── NAME + USER TYPE BADGE ──
+      html += '<h4 style="display:flex;align-items:center;gap:8px;">' + escHtml(user.full_name || "N/A") + ' ' + userBadgeHtml(user, "md") + '</h4>';
+      html += '<p class="email">' + escHtml(user.email || "N/A") + '</p>';
+      html += '<p><strong>Institute:</strong> ' + escHtml(user.institute || "N/A") + '</p>';
+      html += '<p><strong>Batch:</strong> ' + (user.batch || "N/A") + ' &nbsp;|&nbsp; <strong>Degree:</strong> ' + escHtml(user.degree || "N/A") + '</p>';
+      html += '<p><strong>Branch:</strong> ' + escHtml(user.branch || "N/A") + '</p>';
+      html += '<p><strong>Submitted:</strong> ' + date + '</p>';
+      if (user.disparity_message) html += '<p style="color:#e65100;margin-top:6px;font-size:12px;"><strong>Previous Disparity:</strong> ' + escHtml(user.disparity_message) + '</p>';
       html += '<span class="badge badge-pending">Pending</span></div>';
       html += '<div class="card-actions">';
-      html += '<button class="btn-approve" onclick="verifyUser(' + user.id + ',\'approved\')">&#10003; Approve</button>';
-      html += '<button class="btn-reject"  onclick="verifyUser(' + user.id + ',\'rejected\')">&#10007; Reject</button>';
-      html += '<button class="btn-disparity" onclick="openDisparity(' + user.id + ',\'' + (user.full_name||"User").replace(/'/g,"") + '\')">&#9888; Disparity</button>';
+      html += '<button class="btn-approve"    onclick="verifyUser(' + user.id + ',\'approved\')">&#10003; Approve</button>';
+      html += '<button class="btn-reject"     onclick="verifyUser(' + user.id + ',\'rejected\')">&#10007; Reject</button>';
+      html += '<button class="btn-disparity"  onclick="openDisparity(' + user.id + ',\'' + (user.full_name||"User").replace(/'/g,"") + '\')">&#9888; Disparity</button>';
       if (docUrl) html += '<a class="btn-view-doc" href="' + docUrl + '" target="_blank">&#128196; View Document</a>';
       else html += '<button class="btn-view-doc" disabled style="opacity:0.4;cursor:not-allowed;">No Document</button>';
       html += '</div></div>';
@@ -108,29 +197,36 @@ async function sendDisparity() {
   } catch(e) { alert("Network error."); }
 }
 
+// ── ALL USERS TABLE (badge in Type column, replaces plain text) ──
 async function loadUsers() {
   document.getElementById("usersList").innerHTML = '<p class="loading">Loading...</p>';
   var type=document.getElementById("f_type").value, institute=document.getElementById("f_institute").value, batch=document.getElementById("f_batch").value, branch=document.getElementById("f_branch").value, degree=document.getElementById("f_degree").value;
   var query = "?";
-  if (type) query += "account_type=" + type + "&";
+  if (type)      query += "account_type=" + type + "&";
   if (institute) query += "institute=" + encodeURIComponent(institute) + "&";
-  if (batch) query += "batch=" + batch + "&";
-  if (branch) query += "branch=" + encodeURIComponent(branch) + "&";
-  if (degree) query += "degree=" + encodeURIComponent(degree) + "&";
+  if (batch)     query += "batch=" + batch + "&";
+  if (branch)    query += "branch=" + encodeURIComponent(branch) + "&";
+  if (degree)    query += "degree=" + encodeURIComponent(degree) + "&";
   try {
     var res = await fetch(BASE_URL + "/users" + query);
     var data = await res.json();
     if (!data.success || data.users.length === 0) { document.getElementById("usersList").innerHTML = '<p class="empty">No users found.</p>'; return; }
-    var html = '<table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Institute</th><th>Batch</th><th>Degree</th><th>Branch</th><th>Type</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+    var html = '<table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Institute</th><th>Batch</th><th>Degree</th><th>Branch</th><th>User Type</th><th>Status</th><th>Action</th></tr></thead><tbody>';
     data.users.forEach(function(user, i) {
       var sc = user.verification_status === "approved" ? "badge-approved" : user.verification_status === "pending" ? "badge-pending" : "badge-rejected";
       var userData = encodeURIComponent(JSON.stringify(user));
       var suspendLabel = user.is_suspended ? "▶️ Unsuspend" : "⏸️ Suspend";
       var suspendClass = user.is_suspended ? "btn-small btn-approve" : "btn-small btn-toggle";
-      html += '<tr><td>' + (i+1) + '</td>';
-      html += '<td><span style="color:#b37a0f;font-weight:600;cursor:pointer;text-decoration:underline;" onclick="viewUser(\'' + userData + '\')">' + (user.full_name||"N/A") + '</span></td>';
-      html += '<td style="font-size:12px;color:#b37a0f;">' + (user.email||user.phone||"—") + '</td>';
-      html += '<td>' + (user.institute||"—") + '</td><td>' + (user.batch||"—") + '</td><td>' + (user.degree||"—") + '</td><td>' + (user.branch||"—") + '</td><td>' + (user.account_type||"—") + '</td>';
+      html += '<tr>';
+      html += '<td>' + (i+1) + '</td>';
+      html += '<td><span style="color:#b37a0f;font-weight:600;cursor:pointer;text-decoration:underline;" onclick="viewUser(\'' + userData + '\')">' + escHtml(user.full_name||"N/A") + '</span></td>';
+      html += '<td style="font-size:12px;color:#b37a0f;">' + escHtml(user.email||user.phone||"—") + '</td>';
+      html += '<td>' + escHtml(user.institute||"—") + '</td>';
+      html += '<td>' + (user.batch||"—") + '</td>';
+      html += '<td>' + escHtml(user.degree||"—") + '</td>';
+      html += '<td>' + escHtml(user.branch||"—") + '</td>';
+      // ── USER TYPE BADGE (replaces plain account_type text) ──
+      html += '<td>' + userBadgeHtml(user, "sm") + '</td>';
       html += '<td><span class="badge ' + sc + '">' + (user.is_suspended ? "🔴 Suspended" : user.verification_status) + '</span></td>';
       html += '<td style="display:flex;gap:6px;flex-wrap:wrap;">';
       html += '<button class="btn-small btn-view" onclick="viewUser(\'' + userData + '\')">👁️ View</button>';
@@ -204,10 +300,10 @@ async function loadCompanies() {
       var date = new Date(c.created_at).toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"});
       var sc = c.status === "approved" ? "badge-approved" : c.status === "rejected" ? "badge-rejected" : "badge-pending";
       var docUrl = c.document_path ? BASE_URL + "/" + c.document_path : null;
-      html += '<tr><td>' + (i+1) + '</td><td style="font-weight:600;">' + c.name + '</td>';
-      html += '<td style="font-size:12px;color:#b37a0f;">' + c.email + '</td>';
-      html += '<td>' + (c.industry||"—") + '</td>';
-      html += '<td style="font-size:12px;">' + (c.website ? '<a href="'+c.website+'" target="_blank" style="color:#b37a0f;">'+c.website+'</a>' : "—") + '</td>';
+      html += '<tr><td>' + (i+1) + '</td><td style="font-weight:600;">' + escHtml(c.name) + '</td>';
+      html += '<td style="font-size:12px;color:#b37a0f;">' + escHtml(c.email) + '</td>';
+      html += '<td>' + escHtml(c.industry||"—") + '</td>';
+      html += '<td style="font-size:12px;">' + (c.website ? '<a href="'+c.website+'" target="_blank" style="color:#b37a0f;">'+escHtml(c.website)+'</a>' : "—") + '</td>';
       html += '<td>' + (docUrl ? '<a href="'+docUrl+'" target="_blank" class="btn-small btn-toggle">📄 View</a>' : "—") + '</td>';
       html += '<td><span class="badge ' + sc + '">' + c.status + '</span></td>';
       html += '<td style="font-size:12px;">' + date + '</td><td>';
@@ -215,7 +311,7 @@ async function loadCompanies() {
         html += '<button class="btn-small btn-approve" style="background:#4caf50;color:white;border:none;margin-right:4px;" onclick="verifyCompany('+c.id+',\'approved\')">✓ Approve</button>';
         html += '<button class="btn-small btn-del" style="margin-right:4px;" onclick="verifyCompany('+c.id+',\'rejected\')">✗ Reject</button>';
       }
-      html += '<button class="btn-small btn-del" onclick="deleteCompany('+c.id+',\''+c.name.replace(/'/g,"")+'\')">\uD83D\uDDD1 Delete</button></td></tr>';
+      html += '<button class="btn-small btn-del" onclick="deleteCompany('+c.id+',\''+escHtml(c.name).replace(/'/g,"")+'\')">\uD83D\uDDD1 Delete</button></td></tr>';
     });
     html += '</tbody></table>';
     document.getElementById("companiesList").innerHTML = html;
@@ -251,7 +347,7 @@ async function loadVerifiers() {
     var html = '<table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
     data.verifiers.forEach(function(v, i) {
       var isSuper = v.role === "superadmin";
-      html += '<tr><td>'+(i+1)+'</td><td>'+v.name+'</td><td>'+v.email+'</td>';
+      html += '<tr><td>'+(i+1)+'</td><td>'+escHtml(v.name)+'</td><td>'+escHtml(v.email)+'</td>';
       html += '<td><span class="badge '+(isSuper?"badge-approved":"badge-pending")+'">'+v.role+'</span></td>';
       html += '<td><span class="badge '+(v.is_active?"badge-approved":"badge-rejected")+'">'+(v.is_active?"Active":"Inactive")+'</span></td><td>';
       if (!isSuper) {
@@ -293,7 +389,7 @@ async function deleteVerifier(id,name){
   try{var res=await fetch(BASE_URL+"/admin/verifiers/delete",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({verifier_id:id})});var data=await res.json();if(data.success){alert("Deleted.");loadVerifiers();}else alert("Error: "+data.message);}catch(e){alert("Network error.");}
 }
 
-// ── REPORTS ──
+// ── REPORTS (badge added to reporter/reported columns) ──
 async function loadReports() {
   document.getElementById("reportsList").innerHTML = '<p class="loading">Loading...</p>';
   try {
@@ -304,8 +400,16 @@ async function loadReports() {
     data.reports.forEach(function(r, i) {
       var date = new Date(r.created_at).toLocaleString("en-IN");
       var sc = r.status === "resolved" ? "badge-approved" : r.status === "reviewed" ? "badge-pending" : "badge-rejected";
-      html += '<tr><td>'+(i+1)+'</td><td>'+(r.reporter_name||"—")+'</td><td style="font-weight:600;color:#c62828;">'+(r.reported_name||"—")+'</td><td>'+(r.reason||"—")+'</td>';
-      html += '<td style="max-width:160px;font-size:12px;">'+(r.details||"—")+'</td><td><span class="badge '+sc+'">'+r.status+'</span></td><td style="font-size:12px;">'+date+'</td>';
+      // Build minimal user-like objects from report data for badge derivation
+      var reporterObj = { account_type: r.reporter_type||"general", institute: r.reporter_institute||"", batch: r.reporter_batch||0 };
+      var reportedObj = { account_type: r.reported_type||"general",  institute: r.reported_institute||"",  batch: r.reported_batch||0  };
+      html += '<tr><td>'+(i+1)+'</td>';
+      html += '<td>' + escHtml(r.reporter_name||"—") + ' ' + userBadgeHtml(reporterObj,"sm") + '</td>';
+      html += '<td style="font-weight:600;color:#c62828;">' + escHtml(r.reported_name||"—") + ' ' + userBadgeHtml(reportedObj,"sm") + '</td>';
+      html += '<td>'+(r.reason||"—")+'</td>';
+      html += '<td style="max-width:160px;font-size:12px;">'+(r.details||"—")+'</td>';
+      html += '<td><span class="badge '+sc+'">'+r.status+'</span></td>';
+      html += '<td style="font-size:12px;">'+date+'</td>';
       html += '<td style="display:flex;gap:4px;flex-wrap:wrap;">';
       html += '<button class="btn-small btn-toggle" onclick="updateReport('+r.id+',\'reviewed\')">Reviewed</button>';
       html += '<button class="btn-small btn-approve" style="background:#4caf50;color:white;border:none;" onclick="updateReport('+r.id+',\'resolved\')">Resolve</button>';
@@ -327,7 +431,6 @@ async function updateReport(reportId,status){
   }catch(e){alert("Network error.");}
 }
 
-// ── WARN USER ──
 async function warnUser(userId, userName) {
   var msg = prompt("Enter warning message for " + userName + ":\n\n(This will be shown as a popup when they next login)");
   if (!msg || !msg.trim()) return;
@@ -343,26 +446,21 @@ async function warnUser(userId, userName) {
   } catch(e) { alert("Network error."); }
 }
 
-// ── VIEW CHAT (for reports) ──
 async function viewReportChat(user1Id, user2Id, user1Name, user2Name) {
   document.getElementById("detailContent").innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:32px;margin-bottom:12px;">💬</div><p style="color:#8b7d6b;">Loading chat history...</p></div>';
   document.getElementById("detailModal").style.display = "flex";
-
   try {
     var res  = await fetch(BASE_URL + "/messages/" + user1Id + "/" + user2Id);
     var data = await res.json();
-
     if (!data.success || data.messages.length === 0) {
       document.getElementById("detailContent").innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:32px;margin-bottom:12px;">🔍</div><h3 style="color:#4a3f35;margin-bottom:8px;">No messages found</h3><p style="color:#8b7d6b;">These users have no chat history.</p></div>';
       return;
     }
-
     var html = '<div style="margin-bottom:16px;padding:12px 16px;background:#fff8e1;border-radius:10px;border-left:4px solid #b37a0f;">';
     html += '<div style="font-size:12px;font-weight:700;color:#b37a0f;margin-bottom:4px;">💬 CHAT HISTORY</div>';
     html += '<div style="font-size:13px;color:#4a3f35;"><strong>' + escHtml(user1Name) + '</strong> &harr; <strong>' + escHtml(user2Name) + '</strong></div>';
     html += '<div style="font-size:11px;color:#8b7d6b;margin-top:2px;">' + data.messages.length + ' messages total</div>';
     html += '</div>';
-
     html += '<div style="max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 0;">';
     data.messages.forEach(function(m) {
       var isUser1 = m.sender_id === user1Id;
@@ -377,15 +475,12 @@ async function viewReportChat(user1Id, user2Id, user1Name, user2Name) {
       html += '</div>';
     });
     html += '</div>';
-
     html += '<div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">';
     html += '<button onclick="warnUser(' + user2Id + ',\'' + escHtml(user2Name) + '\');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:#fff3e0;color:#e65100;font-family:\'Poppins\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⚠️ Warn ' + escHtml(user2Name) + '</button>';
     html += '<button onclick="suspendUser(' + user2Id + ',\'' + escHtml(user2Name) + '\');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:#fff8e1;color:#b37a0f;font-family:\'Poppins\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⏸️ Suspend ' + escHtml(user2Name) + '</button>';
     html += '<button onclick="closeDetailModal()" style="padding:10px 20px;border-radius:10px;border:none;background:#3e2c0f;color:white;font-family:\'Poppins\',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Close</button>';
     html += '</div>';
-
     document.getElementById("detailContent").innerHTML = html;
-
   } catch(e) {
     document.getElementById("detailContent").innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:32px;">❌</div><p style="color:#c62828;">Could not load chat history.</p></div>';
   }
@@ -409,28 +504,36 @@ function closeUserModal(){document.getElementById("detailModal").style.display="
 
 function escHtml(t){if(!t)return"";return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
+// ── USER DETAIL MODAL (badge shown next to name) ──
 function viewUser(encodedData) {
   var user=JSON.parse(decodeURIComponent(encodedData));
   var sc=user.verification_status==="approved"?"#2e7d32":user.verification_status==="pending"?"#b37a0f":"#c62828";
   var scBg=user.verification_status==="approved"?"#e8f5e9":user.verification_status==="pending"?"#fff8e1":"#ffebee";
-  var typeIcon=user.account_type==="verified"?"✅":"👤";
   var joined=user.created_at?new Date(user.created_at).toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"}):"—";
   var initials=(user.full_name||"?").split(" ").map(function(w){return w[0];}).join("").toUpperCase().slice(0,2);
   var suspendLabel = user.is_suspended ? "▶️ Unsuspend" : "⏸️ Suspend";
   var suspendBg = user.is_suspended ? "#e8f5e9" : "#fff8e1";
   var suspendColor = user.is_suspended ? "#2e7d32" : "#b37a0f";
-  var html=`<div style="text-align:center;margin-bottom:24px;"><div style="width:72px;height:72px;border-radius:50%;background:#3e2c0f;color:#f0c060;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">${initials}</div><h3 style="font-size:20px;color:#3e2c0f;margin-bottom:4px;">${user.full_name||"N/A"}</h3><span style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;background:${scBg};color:${sc};">${user.is_suspended ? "🔴 Suspended" : user.verification_status}</span></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">EMAIL</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;word-break:break-all;">${user.email||"—"}</div></div>
-    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">PHONE</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${user.phone||"—"}</div></div>
-    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">TYPE</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${typeIcon} ${user.account_type||"—"}</div></div>
-    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">JOINED</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${joined}</div></div>
-    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">INSTITUTE</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${user.institute||"—"}</div></div>
-    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">BATCH</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${user.batch||"—"}</div></div>
-    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">DEGREE</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${user.degree||"—"}</div></div>
-    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">BRANCH</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${user.branch||"—"}</div></div>
+  var html=`
+  <div style="text-align:center;margin-bottom:24px;">
+    <div style="width:72px;height:72px;border-radius:50%;background:#3e2c0f;color:#f0c060;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">${initials}</div>
+    <h3 style="font-size:20px;color:#3e2c0f;margin-bottom:6px;">${escHtml(user.full_name||"N/A")}</h3>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+      <span style="padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;background:${scBg};color:${sc};">${user.is_suspended ? "🔴 Suspended" : user.verification_status}</span>
+      ${userBadgeHtml(user, "md")}
+    </div>
   </div>
-  ${user.disparity_message?`<div style="margin-top:12px;background:#fff8e1;border-radius:12px;padding:14px;border-left:4px solid #b37a0f;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">⚠️ DISPARITY</div><div style="font-size:13px;color:#3e2c0f;">${user.disparity_message}</div></div>`:""}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">EMAIL</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;word-break:break-all;">${escHtml(user.email||"—")}</div></div>
+    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">PHONE</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${escHtml(user.phone||"—")}</div></div>
+    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">USER TYPE</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${userBadgeHtml(user,"md")}</div></div>
+    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">JOINED</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${joined}</div></div>
+    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">INSTITUTE</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${escHtml(user.institute||"—")}</div></div>
+    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">BATCH</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${user.batch||"—"}</div></div>
+    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">DEGREE</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${escHtml(user.degree||"—")}</div></div>
+    <div style="background:#fdfaf7;border-radius:12px;padding:14px;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">BRANCH</div><div style="font-size:13px;color:#3e2c0f;font-weight:600;">${escHtml(user.branch||"—")}</div></div>
+  </div>
+  ${user.disparity_message?`<div style="margin-top:12px;background:#fff8e1;border-radius:12px;padding:14px;border-left:4px solid #b37a0f;"><div style="font-size:11px;color:#8b7d6b;font-weight:600;margin-bottom:4px;">⚠️ DISPARITY</div><div style="font-size:13px;color:#3e2c0f;">${escHtml(user.disparity_message)}</div></div>`:""}
   <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
     <button onclick="warnUser(${user.id},'${(user.full_name||"").replace(/'/g,"")}');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:#fff3e0;color:#e65100;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⚠️ Warn</button>
     <button onclick="suspendUser(${user.id},'${(user.full_name||"").replace(/'/g,"")}');closeDetailModal();" style="padding:10px 20px;border-radius:10px;border:none;background:${suspendBg};color:${suspendColor};font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">${suspendLabel}</button>

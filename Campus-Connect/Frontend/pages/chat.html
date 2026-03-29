@@ -79,7 +79,7 @@
       color: white; font-size: 14px; font-weight: 700;
     }
     .conv-info { flex: 1; min-width: 0; }
-    .conv-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .conv-name { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .conv-last { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
     .conv-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
     .conv-time { font-size: 11px; color: var(--muted); }
@@ -105,13 +105,12 @@
 
     .chat-header { padding: 16px 24px; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
     .chat-header-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
-    .chat-header-info h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+    .chat-header-info h3 { font-size: 15px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .chat-header-info p { font-size: 12px; color: var(--muted); }
     .chat-header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
     .btn-danger-sm { padding: 7px 14px; border-radius: 20px; border: 1.5px solid #ffcdd2; background: transparent; color: #f44336; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-danger-sm:hover { background: #ffebee; }
 
-    /* ── DELETE CHAT BUTTON ── */
     .btn-delete-chat {
       padding: 7px 14px; border-radius: 20px;
       border: 1.5px solid #e0d5c7; background: transparent;
@@ -139,7 +138,6 @@
     .date-sep { text-align: center; font-size: 11px; color: var(--muted); margin: 8px 0; }
     .date-sep span { background: #e8e0d5; padding: 3px 12px; border-radius: 20px; }
 
-    /* ── DELETE MESSAGE MENU ── */
     .msg-delete-menu {
       position: absolute; background: white; border-radius: 10px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid var(--border);
@@ -161,7 +159,6 @@
     .btn-send:hover { background: var(--dark); }
     .btn-send:disabled { background: #ccc; cursor: not-allowed; }
 
-    /* ── MODALS ── */
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
     .modal-box { background: white; border-radius: 20px; padding: 32px; width: 90%; max-width: 420px; }
     .modal-box h3 { font-size: 18px; color: var(--text); margin-bottom: 6px; }
@@ -173,11 +170,9 @@
     .btn-cancel { padding: 10px 20px; border-radius: 20px; border: 1.5px solid var(--border); background: transparent; font-family: 'Poppins', sans-serif; font-size: 13px; cursor: pointer; color: var(--muted); }
     .btn-report { padding: 10px 20px; border-radius: 20px; border: none; background: #f44336; color: white; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
 
-    /* ── DELETE CHAT MODAL ── */
     .delete-chat-modal-box {
       background: white; border-radius: 20px; padding: 32px;
-      width: 90%; max-width: 400px;
-      border-top: 4px solid #f44336;
+      width: 90%; max-width: 400px; border-top: 4px solid #f44336;
     }
     .delete-chat-modal-box .dc-icon { font-size: 40px; text-align: center; margin-bottom: 12px; }
     .delete-chat-modal-box h3 { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; text-align: center; }
@@ -185,74 +180,39 @@
       background: #fff8f8; border: 1.5px solid #ffcdd2; border-radius: 10px;
       padding: 12px 14px; font-size: 12px; color: #c62828; margin: 14px 0 8px; line-height: 1.6;
     }
-    .dc-note {
-      font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 4px;
-      padding: 8px 12px; background: #fdfaf7; border-radius: 8px; line-height: 1.5;
-    }
+    .dc-note { font-size: 11px; color: var(--muted); text-align: center; margin-bottom: 4px; padding: 8px 12px; background: #fdfaf7; border-radius: 8px; line-height: 1.5; }
     .dc-note strong { color: var(--text); }
     .delete-chat-modal-box .modal-actions { margin-top: 20px; }
-    .btn-delete-confirm {
-      padding: 10px 20px; border-radius: 20px; border: none;
-      background: #f44336; color: white; font-family: 'Poppins', sans-serif;
-      font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;
-    }
+    .btn-delete-confirm { padding: 10px 20px; border-radius: 20px; border: none; background: #f44336; color: white; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; }
     .btn-delete-confirm:hover { background: #c62828; }
 
-    /* ── MOBILE ── */
+    /* ── USER TYPE BADGE STYLES ── */
+    .ub-iit     { background:#EEEDFE; color:#3C3489; }
+    .ub-iit     .ub-dot { background:#534AB7; }
+    .ub-nit     { background:#E1F5EE; color:#085041; }
+    .ub-nit     .ub-dot { background:#0F6E56; }
+    .ub-alumni  { background:#FAEEDA; color:#633806; }
+    .ub-alumni  .ub-dot { background:#854F0B; }
+    .ub-school  { background:#E6F1FB; color:#0C447C; }
+    .ub-school  .ub-dot { background:#185FA5; }
+    .ub-general { background:#F1EFE8; color:#5F5E5A; }
+    .ub-general .ub-dot { background:#888780; }
+    .user-badge { display:inline-flex; align-items:center; gap:4px; border-radius:999px; font-weight:600; letter-spacing:0.02em; white-space:nowrap; flex-shrink:0; }
+    .ub-dot { border-radius:50%; flex-shrink:0; }
+
     .btn-back-mobile { display: none; }
 
     @media (max-width: 768px) {
       nav { padding: 12px 16px; }
       .nav-links { display: none; }
-
-      /* Fix height so layout fills screen below nav */
-      .chat-layout {
-        position: relative;
-        overflow: hidden;
-        height: calc(100vh - 57px);
-      }
-
-      /* Sidebar full screen */
-      .sidebar {
-        position: absolute; top: 0; left: 0;
-        width: 100%; height: 100%; z-index: 50;
-        transform: translateX(0);
-        transition: transform 0.25s ease;
-      }
+      .chat-layout { position: relative; overflow: hidden; height: calc(100vh - 57px); }
+      .sidebar { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; transform: translateX(0); transition: transform 0.25s ease; }
       .sidebar.hidden { transform: translateX(-100%); }
-
-      /* Chat area full screen with column layout */
-      .chat-area {
-        position: absolute; top: 0; left: 0;
-        width: 100%; height: 100%; z-index: 40;
-        display: none;
-        flex-direction: column;
-      }
+      .chat-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 40; display: none; flex-direction: column; }
       .chat-area.mobile-active { display: flex; }
-
-      /* Messages area fills space, input stays at bottom */
-      .messages-area {
-        flex: 1;
-        overflow-y: auto;
-        padding: 14px;
-        min-height: 0;
-      }
-      .chat-input-area {
-        flex-shrink: 0;
-        padding: 10px 14px;
-        background: var(--white);
-        border-top: 1px solid var(--border);
-      }
-
-      /* Back button */
-      .btn-back-mobile {
-        display: flex; align-items: center; justify-content: center;
-        width: 34px; height: 34px; border-radius: 50%;
-        background: var(--bg); border: 1.5px solid var(--border);
-        cursor: pointer; font-size: 16px; flex-shrink: 0;
-        color: var(--text); margin-right: 4px;
-      }
-
+      .messages-area { flex: 1; overflow-y: auto; padding: 14px; min-height: 0; }
+      .chat-input-area { flex-shrink: 0; padding: 10px 14px; background: var(--white); border-top: 1px solid var(--border); }
+      .btn-back-mobile { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--bg); border: 1.5px solid var(--border); cursor: pointer; font-size: 16px; flex-shrink: 0; color: var(--text); margin-right: 4px; }
       .chat-header { padding: 12px 14px; gap: 10px; flex-shrink: 0; }
       .chat-header-actions { gap: 5px; }
       .btn-delete-chat { padding: 6px 8px; font-size: 11px; }
@@ -328,7 +288,7 @@
   </div>
 </div>
 
-<!-- ── DELETE ENTIRE CHAT MODAL ── -->
+<!-- DELETE ENTIRE CHAT MODAL -->
 <div class="modal" id="deleteChatModal" style="display:none;">
   <div class="delete-chat-modal-box">
     <div class="dc-icon">🗑️</div>
@@ -349,8 +309,43 @@
 
 <script>
   const BASE_URL = "https://conncam.in";
-  const WS_URL = "wss://conncam.in/ws";
+  const WS_URL   = "wss://conncam.in/ws";
 
+  // ══════════════════════════════════════════════
+  //  USER TYPE BADGE SYSTEM
+  // ══════════════════════════════════════════════
+  function getUserType(user) {
+    var institute = (user.institute || "").toUpperCase();
+    var batch     = parseInt(user.batch) || 0;
+    var now       = new Date().getFullYear();
+    if (user.account_type === "verified" && batch > 0 && batch < now) return "alumni";
+    if (institute.startsWith("IIT") && !institute.startsWith("IIIT"))  return "iit";
+    if (institute.startsWith("NIT") || institute.startsWith("IIIT"))   return "nit";
+    if (user.account_type === "general" && !user.institute)            return "school";
+    return "general";
+  }
+
+  function userBadgeHtml(user, size) {
+    var type = getUserType(user);
+    var map = {
+      iit:     { label: "IITian",         cls: "ub-iit"     },
+      nit:     { label: "NITian",         cls: "ub-nit"     },
+      alumni:  { label: "Alumni",         cls: "ub-alumni"  },
+      school:  { label: "School Student", cls: "ub-school"  },
+      general: { label: "General",        cls: "ub-general" }
+    };
+    var info    = map[type] || map.general;
+    var padding = size === "sm" ? "2px 7px" : "3px 10px";
+    var fsize   = size === "sm" ? "10px"    : "11px";
+    var dotSize = size === "sm" ? "5px"     : "6px";
+    return '<span class="user-badge ' + info.cls + '" style="padding:' + padding + ';font-size:' + fsize + ';">' +
+           '<span class="ub-dot" style="width:' + dotSize + ';height:' + dotSize + ';"></span>' +
+           info.label + '</span>';
+  }
+
+  // ══════════════════════════════════════════════
+  //  EXISTING VARS & SETUP
+  // ══════════════════════════════════════════════
   var currentUser = JSON.parse(sessionStorage.getItem("user") || "null");
   if (!currentUser) { window.location.href = "login.html"; }
 
@@ -358,18 +353,17 @@
   var initials = (currentUser.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
   document.getElementById("navAvatar").textContent = initials;
 
-  var activeChatUser = null;
-  var ws = null;
-  var reportTarget = null;
-  var activeTab = "chats";
+  var activeChatUser  = null;
+  var ws              = null;
+  var reportTarget    = null;
+  var activeTab       = "chats";
   var activeDeleteMenu = null;
 
-  // ── TAB SWITCHING ──
   function switchTab(tab) {
     activeTab = tab;
     document.getElementById("tabChats").classList.toggle("active", tab === "chats");
     document.getElementById("tabRequests").classList.toggle("active", tab === "requests");
-    document.getElementById("chatsPanel").style.display = tab === "chats" ? "block" : "none";
+    document.getElementById("chatsPanel").style.display    = tab === "chats"    ? "block" : "none";
     document.getElementById("requestsPanel").style.display = tab === "requests" ? "block" : "none";
     if (tab === "requests") loadRequests();
   }
@@ -382,7 +376,7 @@
       if (msg.type === "message") {
         if (activeChatUser && (
           (msg.sender_id == activeChatUser.id && msg.receiver_id == currentUser.id) ||
-          (msg.sender_id == currentUser.id && msg.receiver_id == activeChatUser.id)
+          (msg.sender_id == currentUser.id    && msg.receiver_id == activeChatUser.id)
         )) { appendMessage(msg, msg.sender_id == currentUser.id); }
         loadConversations();
       }
@@ -392,7 +386,9 @@
   }
   connectWS();
 
-  // ── LOAD CONVERSATIONS ──
+  // ══════════════════════════════════════════════
+  //  LOAD CONVERSATIONS  — badges in sidebar list
+  // ══════════════════════════════════════════════
   async function loadConversations() {
     try {
       var res  = await fetch(BASE_URL + "/messages/inbox/" + currentUser.id);
@@ -403,13 +399,17 @@
       }
       var html = "";
       data.conversations.forEach(function(c) {
-        var av = (c.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+        var av       = (c.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
         var isActive = activeChatUser && activeChatUser.id == c.id;
-        var time = formatTime(c.last_time);
-        html += '<div class="conv-item' + (isActive ? " active" : "") + '" onclick="openChat(' + c.id + ',\'' + (c.full_name||"").replace(/'/g,"") + '\',\'' + (c.institute||"").replace(/'/g,"") + '\')">';
+        var time     = formatTime(c.last_time);
+        var badge    = userBadgeHtml({ account_type: c.account_type || "general", institute: c.institute || "", batch: c.batch || 0 }, "sm");
+
+        html += '<div class="conv-item' + (isActive ? " active" : "") + '" onclick="openChat(' + c.id + ',\'' + (c.full_name||"").replace(/'/g,"") + '\',\'' + (c.institute||"").replace(/'/g,"") + '\',\'' + (c.account_type||"general") + '\',' + (c.batch||0) + ')">';
         html += '<div class="conv-avatar">' + av + '</div>';
-        html += '<div class="conv-info"><div class="conv-name">' + (c.full_name || "—") + '</div>';
-        html += '<div class="conv-last">' + (c.last_message || "").substring(0, 30) + (c.last_message && c.last_message.length > 30 ? "..." : "") + '</div></div>';
+        html += '<div class="conv-info">';
+        html += '<div class="conv-name">' + (c.full_name || "—") + ' ' + badge + '</div>';
+        html += '<div class="conv-last">' + (c.last_message || "").substring(0, 30) + (c.last_message && c.last_message.length > 30 ? "..." : "") + '</div>';
+        html += '</div>';
         html += '<div class="conv-meta"><span class="conv-time">' + time + '</span>';
         if (c.unread_count > 0) html += '<span class="unread-dot">' + c.unread_count + '</span>';
         html += '</div></div>';
@@ -418,7 +418,6 @@
     } catch(e) { console.error("Load conversations error:", e); }
   }
 
-  // ── LOAD MESSAGE REQUESTS ──
   async function loadRequests() {
     if (!isVerified) {
       document.getElementById("requestsPanel").innerHTML = '<div class="no-convs">Only verified users receive message requests.</div>';
@@ -450,7 +449,6 @@
     } catch(e) { document.getElementById("requestsPanel").innerHTML = '<div class="no-convs">Error loading requests.</div>'; }
   }
 
-  // ── RESPOND TO MESSAGE REQUEST ──
   async function respondRequest(requestId, action, senderId, senderName, senderInstitute) {
     try {
       var res = await fetch(BASE_URL + "/social/message-request/respond", {
@@ -462,7 +460,7 @@
         if (action === "accepted") {
           alert("Request accepted! You can now chat with " + senderName);
           switchTab("chats");
-          openChat(senderId, senderName, senderInstitute);
+          openChat(senderId, senderName, senderInstitute, "general", 0);
         } else { alert("Request rejected."); loadRequests(); }
       } else { alert("Error: " + data.message); }
     } catch(e) { alert("Network error."); }
@@ -474,19 +472,22 @@
       .then(function(r){ return r.json(); })
       .then(function(data){
         if (data.success && data.requests.length > 0) {
-          var badge = document.getElementById("reqBadge");
-          badge.style.display = "flex";
-          badge.textContent = data.requests.length;
+          var b = document.getElementById("reqBadge");
+          b.style.display = "flex";
+          b.textContent = data.requests.length;
         }
       }).catch(function(){});
   }
 
-  async function openChat(userId, userName, institute) {
-    activeChatUser = { id: userId, name: userName, institute: institute };
+  // ══════════════════════════════════════════════
+  //  OPEN CHAT  — badge in chat header
+  // ══════════════════════════════════════════════
+  async function openChat(userId, userName, institute, accountType, batch) {
+    activeChatUser = { id: userId, name: userName, institute: institute, account_type: accountType || "general", batch: batch || 0 };
     sessionStorage.removeItem("chatWith");
-    var av = (userName || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+    var av          = (userName || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+    var headerBadge = userBadgeHtml(activeChatUser, "sm");
 
-    // On mobile: hide sidebar, show chat area
     var isMobile = window.innerWidth <= 768;
     if (isMobile) {
       document.querySelector(".sidebar").classList.add("hidden");
@@ -497,11 +498,12 @@
       <div class="chat-header">
         <button class="btn-back-mobile" onclick="goBackToSidebar()" title="Back">←</button>
         <div class="chat-header-avatar">${av}</div>
-        <div class="chat-header-info"><h3>${userName}</h3><p>🏛️ ${institute || "—"}</p></div>
+        <div class="chat-header-info">
+          <h3>${userName} ${headerBadge}</h3>
+          <p>🏛️ ${institute || "—"}</p>
+        </div>
         <div class="chat-header-actions">
-          <button class="btn-delete-chat" onclick="openDeleteChatModal()" title="Delete entire chat">
-            🗑️ Delete Chat
-          </button>
+          <button class="btn-delete-chat" onclick="openDeleteChatModal()" title="Delete entire chat">🗑️ Delete Chat</button>
           <button class="btn-danger-sm" onclick="blockUser(${userId}, '${userName.replace(/'/g,"")}')">Block</button>
           <button class="btn-danger-sm" onclick="openReport(${userId}, '${userName.replace(/'/g,"")}')">Report</button>
         </div>
@@ -512,8 +514,7 @@
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"
           oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
         <button class="btn-send" id="sendBtn" onclick="sendMessage()">Send</button>
-      </div>
-    `;
+      </div>`;
     document.getElementById("chatArea").innerHTML = chatHTML;
     await loadMessages();
     loadConversations();
@@ -554,24 +555,20 @@
     } catch(e) { console.error("Load messages error:", e); }
   }
 
-  // ── APPEND MESSAGE WITH SEEN INDICATOR ──
   function appendMessage(msg, isMine) {
     var area = document.getElementById("messagesArea");
     if (!area) return;
     var av = isMine ? initials : (activeChatUser ? (activeChatUser.name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2) : "?");
     var time = new Date(msg.created_at).toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit" });
     var isDeleted = msg.deleted_for_everyone;
-    var bubbleClass = "msg-bubble" + (isDeleted ? " deleted" : "");
+    var bubbleClass   = "msg-bubble" + (isDeleted ? " deleted" : "");
     var bubbleContent = isDeleted ? "This message was deleted" : escapeHtml(msg.content);
-
-    // ── SEEN INDICATOR ──
     var seenIndicator = "";
     if (isMine && !isDeleted) {
       seenIndicator = msg.is_read == 1
         ? ' <span style="color:#4fc3f7;font-size:11px;" title="Seen">✓✓</span>'
         : ' <span style="color:#aaa;font-size:11px;" title="Delivered">✓</span>';
     }
-
     var div = document.createElement("div");
     div.className = "msg-row " + (isMine ? "mine" : "theirs");
     div.setAttribute("data-id", msg.id);
@@ -580,7 +577,6 @@
     scrollToBottom();
   }
 
-  // ── DELETE MESSAGE MENU ──
   function showDeleteMenu(event, msgId, isMine) {
     event.stopPropagation();
     closeDeleteMenu();
@@ -590,7 +586,7 @@
     menu.innerHTML = '<button onclick="deleteMessage(' + msgId + ', false)">Delete for me</button>' + (isMine ? '<button class="danger" onclick="deleteMessage(' + msgId + ', true)">Delete for everyone</button>' : '');
     var rect = event.target.getBoundingClientRect();
     menu.style.position = "fixed";
-    menu.style.top = (rect.bottom + 4) + "px";
+    menu.style.top  = (rect.bottom + 4) + "px";
     menu.style.left = Math.min(rect.left, window.innerWidth - 180) + "px";
     document.body.appendChild(menu);
     activeDeleteMenu = menu;
@@ -599,7 +595,6 @@
   function closeDeleteMenu() {
     if (activeDeleteMenu) { activeDeleteMenu.remove(); activeDeleteMenu = null; }
   }
-
   document.addEventListener("click", closeDeleteMenu);
 
   async function deleteMessage(msgId, forEveryone) {
@@ -623,14 +618,8 @@
     } catch(e) { alert("Network error."); }
   }
 
-  // ── DELETE ENTIRE CHAT ──
-  function openDeleteChatModal() {
-    document.getElementById("deleteChatModal").style.display = "flex";
-  }
-
-  function closeDeleteChatModal() {
-    document.getElementById("deleteChatModal").style.display = "none";
-  }
+  function openDeleteChatModal()  { document.getElementById("deleteChatModal").style.display = "flex"; }
+  function closeDeleteChatModal() { document.getElementById("deleteChatModal").style.display = "none"; }
 
   async function confirmDeleteEntireChat() {
     if (!activeChatUser) return;
@@ -639,14 +628,10 @@
       var res = await fetch(BASE_URL + "/messages/delete-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: currentUser.id,
-          other_user_id: activeChatUser.id
-        })
+        body: JSON.stringify({ user_id: currentUser.id, other_user_id: activeChatUser.id })
       });
       var data = await res.json();
       if (data.success) {
-        // Reset chat area to empty state
         activeChatUser = null;
         document.getElementById("chatArea").innerHTML = `
           <div class="chat-empty" id="chatEmpty">
@@ -656,12 +641,8 @@
             <button class="goto-network" onclick="window.location.href='network.html'">Find People →</button>
           </div>`;
         loadConversations();
-      } else {
-        alert("Error: " + (data.message || "Could not delete chat."));
-      }
-    } catch(e) {
-      alert("Network error. Please try again.");
-    }
+      } else { alert("Error: " + (data.message || "Could not delete chat.")); }
+    } catch(e) { alert("Network error. Please try again."); }
   }
 
   function sendMessage() {
@@ -687,7 +668,7 @@
   function openReport(userId, userName) {
     reportTarget = userId;
     document.getElementById("reportName").textContent = "Reporting: " + userName;
-    document.getElementById("reportReason").value = "";
+    document.getElementById("reportReason").value  = "";
     document.getElementById("reportDetails").value = "";
     document.getElementById("reportModal").style.display = "flex";
   }
@@ -725,7 +706,7 @@
 
   window.addEventListener("load", function() {
     var chatWith = sessionStorage.getItem("chatWith");
-    if (chatWith) { var u = JSON.parse(chatWith); openChat(u.id, u.name, u.institute || ""); }
+    if (chatWith) { var u = JSON.parse(chatWith); openChat(u.id, u.name, u.institute || "", u.account_type || "general", u.batch || 0); }
   });
 </script>
 </body>
