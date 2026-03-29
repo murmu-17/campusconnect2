@@ -6,7 +6,7 @@ const db = require("../db/connection");
 router.get("/inbox/:user_id", (req, res) => {
   const { user_id } = req.params;
   db.query(
-    `SELECT u.id, u.full_name, u.institute, u.batch,
+    `SELECT u.id, u.full_name, u.institute, u.batch, u.account_type,
        m.content as last_message, m.created_at as last_time, m.sender_id,
        SUM(CASE WHEN m.is_read=0 AND m.receiver_id=? THEN 1 ELSE 0 END) as unread_count
      FROM users u
