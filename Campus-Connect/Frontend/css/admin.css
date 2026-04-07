@@ -29,10 +29,19 @@ body {
 
 .nav-tabs {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-wrap: nowrap;
   justify-content: center;
   min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 2px;
+}
+
+.nav-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-user {
@@ -45,7 +54,7 @@ body {
 }
 
 .nav-btn {
-  padding: 8px 20px;
+  padding: 8px 18px;
   border-radius: 20px;
   border: 1.5px solid #e0d5c7;
   background: transparent;
@@ -55,6 +64,8 @@ body {
   color: #8b7d6b;
   cursor: pointer;
   transition: 0.3s;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .nav-btn.active {
@@ -397,6 +408,11 @@ tr:hover td { background: #fdfaf7; }
   .nav-tabs,
   .nav-user {
     justify-content: flex-start;
+  }
+  .nav-tabs {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    padding-bottom: 0;
   }
   .tab-content { padding: 20px; }
   .user-card { flex-direction: column; }
