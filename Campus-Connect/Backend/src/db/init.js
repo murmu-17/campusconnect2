@@ -25,10 +25,23 @@ function initDB() {
       else {
         console.log("Users table ready");
         db.query(
-          "ALTER TABLE users ADD COLUMN IF NOT EXISTS user_subtype ENUM('student','alumni') DEFAULT NULL AFTER account_type",
-          (alterErr) => {
-            if (alterErr) console.error("Users subtype column:", alterErr.message);
-            else console.log("Users subtype column ready");
+          "SHOW COLUMNS FROM users LIKE 'user_subtype'",
+          (checkErr, columns) => {
+            if (checkErr) {
+              console.error("Users subtype column check:", checkErr.message);
+              return;
+            }
+            if (columns.length > 0) {
+              console.log("Users subtype column ready");
+              return;
+            }
+            db.query(
+              "ALTER TABLE users ADD COLUMN user_subtype ENUM('student','alumni') DEFAULT NULL AFTER account_type",
+              (alterErr) => {
+                if (alterErr) console.error("Users subtype column:", alterErr.message);
+                else console.log("Users subtype column ready");
+              }
+            );
           }
         );
       }

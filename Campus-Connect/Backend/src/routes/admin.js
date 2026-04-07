@@ -2,17 +2,21 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const db = require("../db/connection");
-const { logActivity } = require("../lib/helpers");
+const { logActivity, hasUserSubtypeColumn } = require("../lib/helpers");
 
 // ================= PENDING VERIFICATIONS =================
 router.get("/pending", (req, res) => {
-  db.query(
-    "SELECT id,full_name,email,institute,batch,degree,branch,user_subtype,document_path,disparity_message,created_at FROM users WHERE verification_status='pending' ORDER BY created_at DESC",
-    (err, results) => {
+  hasUserSubtypeColumn((hasSubtypeColumn) => {
+    const query =
+      "SELECT id,full_name,email,institute,batch,degree,branch," +
+      (hasSubtypeColumn ? "user_subtype," : "NULL AS user_subtype,") +
+      "document_path,disparity_message,created_at FROM users WHERE verification_status='pending' ORDER BY created_at DESC";
+
+    db.query(query, (err, results) => {
       if (err) { console.error("PENDING:", err.message); return res.json({ success: false, message: "DB error: " + err.message }); }
       res.json({ success: true, pending: results });
-    }
-  );
+    });
+  });
 });
 
 // ================= VERIFY USER =================

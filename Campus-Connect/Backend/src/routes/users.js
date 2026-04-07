@@ -1,23 +1,28 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/connection");
+const { hasUserSubtypeColumn } = require("../lib/helpers");
 
 // ================= ALL USERS (admin/general use) =================
 router.get("/", (req, res) => {
   const { institute, batch, branch, degree, account_type } = req.query;
-  let query = "SELECT id,full_name,email,phone,institute,batch,degree,branch,account_type,user_subtype,verification_status,is_suspended FROM users WHERE 1=1";
-  const params = [];
+  hasUserSubtypeColumn((hasSubtypeColumn) => {
+    let query = "SELECT id,full_name,email,phone,institute,batch,degree,branch,account_type," +
+      (hasSubtypeColumn ? "user_subtype," : "NULL AS user_subtype,") +
+      "verification_status,is_suspended FROM users WHERE 1=1";
+    const params = [];
 
-  if (account_type) { query += " AND account_type=?"; params.push(account_type); }
-  if (institute)    { query += " AND institute=?";    params.push(institute); }
-  if (batch)        { query += " AND batch=?";        params.push(parseInt(batch)); }
-  if (branch)       { query += " AND branch LIKE ?";  params.push("%" + branch + "%"); }
-  if (degree)       { query += " AND degree=?";       params.push(degree); }
+    if (account_type) { query += " AND account_type=?"; params.push(account_type); }
+    if (institute)    { query += " AND institute=?";    params.push(institute); }
+    if (batch)        { query += " AND batch=?";        params.push(parseInt(batch)); }
+    if (branch)       { query += " AND branch LIKE ?";  params.push("%" + branch + "%"); }
+    if (degree)       { query += " AND degree=?";       params.push(degree); }
 
-  query += " ORDER BY batch DESC,full_name ASC LIMIT 100";
-  db.query(query, params, (err, results) => {
-    if (err) return res.json({ success: false, message: "DB error" });
-    res.json({ success: true, users: results, total: results.length });
+    query += " ORDER BY batch DESC,full_name ASC LIMIT 100";
+    db.query(query, params, (err, results) => {
+      if (err) return res.json({ success: false, message: "DB error" });
+      res.json({ success: true, users: results, total: results.length });
+    });
   });
 });
 

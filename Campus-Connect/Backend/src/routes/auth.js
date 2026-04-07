@@ -5,7 +5,7 @@ const fs = require("fs");
 const db = require("../db/connection");
 const { upload } = require("../lib/upload");
 const { getOTP, deleteOTP } = require("../lib/otp");
-const { isValidInstituteEmail, logActivity } = require("../lib/helpers");
+const { isValidInstituteEmail, logActivity, hasUserSubtypeColumn } = require("../lib/helpers");
 const { EMAIL_REGEX } = require("../config/constants");
 
 // ================= GENERAL SIGNUP =================
@@ -77,10 +77,15 @@ router.post("/verified-signup", (req, res) => {
 
     try {
       const hash = await bcrypt.hash(password, 10);
-      db.query(
-        "INSERT INTO users (full_name,email,phone,password,account_type,user_subtype,institute,batch,degree,branch,document_path,verification_status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-        [full_name, email, phone || null, hash, "verified", userSubtype, institute, parseInt(batch), degree, branch, "uploads/" + docFile.filename, "pending"],
-        (err) => {
+      hasUserSubtypeColumn((hasSubtypeColumn) => {
+        const query = hasSubtypeColumn
+          ? "INSERT INTO users (full_name,email,phone,password,account_type,user_subtype,institute,batch,degree,branch,document_path,verification_status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+          : "INSERT INTO users (full_name,email,phone,password,account_type,institute,batch,degree,branch,document_path,verification_status) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+        const params = hasSubtypeColumn
+          ? [full_name, email, phone || null, hash, "verified", userSubtype, institute, parseInt(batch), degree, branch, "uploads/" + docFile.filename, "pending"]
+          : [full_name, email, phone || null, hash, "verified", institute, parseInt(batch), degree, branch, "uploads/" + docFile.filename, "pending"];
+
+        db.query(query, params, (err) => {
           if (err) {
             if (err.code === "ER_DUP_ENTRY") {
               fs.unlinkSync(docFile.path);
@@ -90,8 +95,8 @@ router.post("/verified-signup", (req, res) => {
           }
           deleteOTP(email);
           res.json({ success: true, message: "Verification submitted. Await admin approval." });
-        }
-      );
+        });
+      });
     } catch (e) {
       fs.unlinkSync(docFile.path);
       res.json({ success: false, message: "Server error" });
