@@ -72,12 +72,6 @@
     }
     .conv-item:hover { background: #fdfaf7; }
     .conv-item.active { background: #fff8e8; border-right: 3px solid var(--gold); }
-    .conv-avatar {
-      width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--gold), var(--dark));
-      display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 14px; font-weight: 700;
-    }
     .conv-info { flex: 1; min-width: 0; }
     .conv-name { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .conv-last { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
@@ -104,7 +98,6 @@
     .chat-empty .goto-network { margin-top: 16px; padding: 10px 24px; border-radius: 20px; border: none; background: var(--gold); color: white; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
 
     .chat-header { padding: 16px 24px; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
-    .chat-header-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--dark)); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 700; }
     .chat-header-info h3 { font-size: 15px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .chat-header-info p { font-size: 12px; color: var(--muted); }
     .chat-header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
@@ -312,7 +305,7 @@
   const WS_URL   = "wss://conncam.in/ws";
 
   // ══════════════════════════════════════════════
-  //  USER TYPE BADGE SYSTEM
+  //  USER TYPE DETECTION
   // ══════════════════════════════════════════════
   function getUserType(user) {
     var institute = (user.institute || "").toUpperCase();
@@ -325,6 +318,39 @@
     return "general";
   }
 
+  // ══════════════════════════════════════════════
+  //  AVATAR WITH COLOR + BADGE ICON
+  // ══════════════════════════════════════════════
+  function avatarConfig(user) {
+    var type = getUserType(user);
+    var trophy = '<svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M3 1h4v4a2 2 0 01-4 0V1z" fill="#fff"/><path d="M1.5 2h1v1.5a1 1 0 01-1 0V2z" fill="#fff"/><path d="M7.5 2h1v1.5a1 1 0 01-1 0V2z" fill="#fff"/><rect x="4" y="5" width="2" height="1.5" fill="#fff"/><rect x="3" y="6.5" width="4" height="1" rx="0.3" fill="#fff"/></svg>';
+    var book   = '<svg width="9" height="9" viewBox="0 0 10 10" fill="none"><rect x="1.5" y="1.5" width="7" height="7" rx="1" fill="none" stroke="#fff" stroke-width="1.2"/><line x1="3" y1="4" x2="7" y2="4" stroke="#fff" stroke-width="1"/><line x1="3" y1="6" x2="6" y2="6" stroke="#fff" stroke-width="1"/></svg>';
+    var star   = '<svg width="9" height="9" viewBox="0 0 10 10" fill="none"><polygon points="5,1 6.2,3.8 9.5,4 7,6.3 7.6,9.5 5,8 2.4,9.5 3,6.3 0.5,4 3.8,3.8" fill="#fff"/></svg>';
+    var map = {
+      iit:     { bg: "#1D9E75", badge: trophy },
+      nit:     { bg: "#1D9E75", badge: trophy },
+      alumni:  { bg: "#BA7517", badge: star   },
+      school:  { bg: "#378ADD", badge: book   },
+      general: { bg: "#888780", badge: ""     }
+    };
+    return map[type] || map.general;
+  }
+
+  function avatarHtml(user, initials, size) {
+    var cfg  = avatarConfig(user);
+    var dim  = size === "lg" ? "40px" : "42px";
+    var fs   = size === "lg" ? "13px" : "14px";
+    var badgeHtml = cfg.badge
+      ? '<span style="position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;border-radius:50%;background:' + cfg.bg + ';display:flex;align-items:center;justify-content:center;border:2px solid #fff;">' + cfg.badge + '</span>'
+      : '';
+    return '<div style="position:relative;width:' + dim + ';height:' + dim + ';flex-shrink:0;">' +
+           '<div style="width:' + dim + ';height:' + dim + ';border-radius:50%;background:' + cfg.bg + ';display:flex;align-items:center;justify-content:center;color:#fff;font-size:' + fs + ';font-weight:700;">' + initials + '</div>' +
+           badgeHtml + '</div>';
+  }
+
+  // ══════════════════════════════════════════════
+  //  USER TYPE BADGE (text pill — still used in conv name & header)
+  // ══════════════════════════════════════════════
   function userBadgeHtml(user, size) {
     var type = getUserType(user);
     var map = {
@@ -353,10 +379,10 @@
   var initials = (currentUser.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
   document.getElementById("navAvatar").textContent = initials;
 
-  var activeChatUser  = null;
-  var ws              = null;
-  var reportTarget    = null;
-  var activeTab       = "chats";
+  var activeChatUser   = null;
+  var ws               = null;
+  var reportTarget     = null;
+  var activeTab        = "chats";
   var activeDeleteMenu = null;
 
   function switchTab(tab) {
@@ -387,7 +413,7 @@
   connectWS();
 
   // ══════════════════════════════════════════════
-  //  LOAD CONVERSATIONS  — badges in sidebar list
+  //  LOAD CONVERSATIONS
   // ══════════════════════════════════════════════
   async function loadConversations() {
     try {
@@ -402,12 +428,12 @@
         var av       = (c.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
         var isActive = activeChatUser && activeChatUser.id == c.id;
         var time     = formatTime(c.last_time);
-        var badge    = userBadgeHtml({ account_type: c.account_type || "general", institute: c.institute || "", batch: c.batch || 0 }, "sm");
+        var userObj  = { account_type: c.account_type || "general", institute: c.institute || "", batch: c.batch || 0 };
 
         html += '<div class="conv-item' + (isActive ? " active" : "") + '" onclick="openChat(' + c.id + ',\'' + (c.full_name||"").replace(/'/g,"") + '\',\'' + (c.institute||"").replace(/'/g,"") + '\',\'' + (c.account_type||"general") + '\',' + (c.batch||0) + ')">';
-        html += '<div class="conv-avatar">' + av + '</div>';
+        html += avatarHtml(userObj, av, "sm");
         html += '<div class="conv-info">';
-        html += '<div class="conv-name">' + (c.full_name || "—") + ' ' + badge + '</div>';
+        html += '<div class="conv-name">' + (c.full_name || "—") + '</div>';
         html += '<div class="conv-last">' + (c.last_message || "").substring(0, 30) + (c.last_message && c.last_message.length > 30 ? "..." : "") + '</div>';
         html += '</div>';
         html += '<div class="conv-meta"><span class="conv-time">' + time + '</span>';
@@ -436,8 +462,9 @@
       badge.textContent = data.requests.length;
       var html = "";
       data.requests.forEach(function(r) {
-        var av = (r.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
-        html += '<div class="req-item"><div class="conv-avatar">' + av + '</div>';
+        var av      = (r.full_name || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
+        var userObj = { account_type: r.account_type || "general", institute: r.institute || "", batch: r.batch || 0 };
+        html += '<div class="req-item">' + avatarHtml(userObj, av, "sm");
         html += '<div class="req-info"><div class="req-name">' + (r.full_name || "—") + '</div>';
         html += '<div class="req-inst">🏛️ ' + (r.institute || "—") + ' · Batch ' + (r.batch || "—") + '</div></div>';
         html += '<div class="req-actions">';
@@ -480,13 +507,14 @@
   }
 
   // ══════════════════════════════════════════════
-  //  OPEN CHAT  — badge in chat header
+  //  OPEN CHAT
   // ══════════════════════════════════════════════
   async function openChat(userId, userName, institute, accountType, batch) {
     activeChatUser = { id: userId, name: userName, institute: institute, account_type: accountType || "general", batch: batch || 0 };
     sessionStorage.removeItem("chatWith");
+
     var av          = (userName || "U").split(" ").map(function(w){ return w[0]; }).join("").toUpperCase().slice(0,2);
-    var headerBadge = userBadgeHtml(activeChatUser, "sm");
+    var headerAvatar = avatarHtml(activeChatUser, av, "lg");
 
     var isMobile = window.innerWidth <= 768;
     if (isMobile) {
@@ -497,9 +525,9 @@
     var chatHTML = `
       <div class="chat-header">
         <button class="btn-back-mobile" onclick="goBackToSidebar()" title="Back">←</button>
-        <div class="chat-header-avatar">${av}</div>
+        ${headerAvatar}
         <div class="chat-header-info">
-          <h3>${userName} ${headerBadge}</h3>
+          <h3>${userName}</h3>
           <p>🏛️ ${institute || "—"}</p>
         </div>
         <div class="chat-header-actions">
