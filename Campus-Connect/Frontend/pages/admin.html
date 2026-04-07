@@ -173,7 +173,9 @@
 
   <!-- NAVBAR -->
   <nav class="navbar">
-    <h2>&#128272; Campus Connect &mdash; Admin</h2>
+    <div class="nav-brand">
+      <h2>&#128272; Campus Connect &mdash; Admin</h2>
+    </div>
     <div class="nav-tabs">
       <button class="nav-btn active" id="btn-pending"    onclick="showTab('pending')">Pending</button>
       <button class="nav-btn"        id="btn-all"        onclick="showTab('all')">All Users</button>
@@ -185,7 +187,7 @@
       <button class="nav-btn"        id="tabChats"       onclick="showTab('chats')"      style="display:none;">💬 Chats</button>
       <button class="nav-btn"        id="tabLogs"        onclick="showTab('logs')"       style="display:none;">Logs</button>
     </div>
-    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <div class="nav-user">
       <span style="font-size:13px;color:#8b7d6b;" id="adminName"></span>
       <button class="refresh-btn" onclick="adminLogout()">Logout</button>
     </div>
