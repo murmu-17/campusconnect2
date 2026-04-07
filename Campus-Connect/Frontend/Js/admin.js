@@ -12,6 +12,20 @@ function getUserType(user) {
   var institute = (user.institute || "").toUpperCase();
   var batch     = parseInt(user.batch) || 0;
   var now       = new Date().getFullYear();
+  var subtype   = (user.user_subtype || "").toLowerCase();
+
+  if (subtype === "alumni") {
+    return "alumni";
+  }
+  if (subtype === "student") {
+    if (institute.startsWith("IIT") && !institute.startsWith("IIIT")) {
+      return "iit";
+    }
+    if (institute.startsWith("NIT") || institute.startsWith("IIIT")) {
+      return "nit";
+    }
+    return "general";
+  }
 
   // Alumni: verified user whose batch has already passed
   if (user.account_type === "verified" && batch > 0 && batch < now) {

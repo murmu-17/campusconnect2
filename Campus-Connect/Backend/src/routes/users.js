@@ -5,7 +5,7 @@ const db = require("../db/connection");
 // ================= ALL USERS (admin/general use) =================
 router.get("/", (req, res) => {
   const { institute, batch, branch, degree, account_type } = req.query;
-  let query = "SELECT id,full_name,email,phone,institute,batch,degree,branch,account_type,verification_status,is_suspended FROM users WHERE 1=1";
+  let query = "SELECT id,full_name,email,phone,institute,batch,degree,branch,account_type,user_subtype,verification_status,is_suspended FROM users WHERE 1=1";
   const params = [];
 
   if (account_type) { query += " AND account_type=?"; params.push(account_type); }

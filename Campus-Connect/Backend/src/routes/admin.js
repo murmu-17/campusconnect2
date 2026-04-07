@@ -7,7 +7,7 @@ const { logActivity } = require("../lib/helpers");
 // ================= PENDING VERIFICATIONS =================
 router.get("/pending", (req, res) => {
   db.query(
-    "SELECT id,full_name,email,institute,batch,degree,branch,document_path,disparity_message,created_at FROM users WHERE verification_status='pending' ORDER BY created_at DESC",
+    "SELECT id,full_name,email,institute,batch,degree,branch,user_subtype,document_path,disparity_message,created_at FROM users WHERE verification_status='pending' ORDER BY created_at DESC",
     (err, results) => {
       if (err) { console.error("PENDING:", err.message); return res.json({ success: false, message: "DB error: " + err.message }); }
       res.json({ success: true, pending: results });

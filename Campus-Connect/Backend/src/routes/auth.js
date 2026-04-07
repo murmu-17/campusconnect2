@@ -48,6 +48,7 @@ router.post("/verified-signup", (req, res) => {
     if (uploadErr) return res.json({ success: false, message: uploadErr.message });
 
     const { full_name, email, password, institute, batch, degree, branch, phone } = req.body;
+    const userSubtype = req.body.user_subtype === "alumni" ? "alumni" : "student";
     const docFile = req.file;
 
     if (!full_name || !email || !password || !institute || !batch || !degree || !branch) {
@@ -63,7 +64,7 @@ router.post("/verified-signup", (req, res) => {
       fs.unlinkSync(docFile.path);
       return res.json({ success: false, message: "Invalid email address" });
     }
-    if (!isValidInstituteEmail(email)) {
+    if (userSubtype === "student" && !isValidInstituteEmail(email)) {
       fs.unlinkSync(docFile.path);
       return res.json({ success: false, message: "Email domain not recognized. Use your official institute email (e.g. b22000@students.iitmandi.ac.in)" });
     }
@@ -71,14 +72,14 @@ router.post("/verified-signup", (req, res) => {
     const record = getOTP(email);
     if (!record || !record.verified) {
       fs.unlinkSync(docFile.path);
-      return res.json({ success: false, message: "Please verify your institute email OTP first" });
+      return res.json({ success: false, message: userSubtype === "student" ? "Please verify your institute email OTP first" : "Please verify your email OTP first" });
     }
 
     try {
       const hash = await bcrypt.hash(password, 10);
       db.query(
-        "INSERT INTO users (full_name,email,phone,password,account_type,institute,batch,degree,branch,document_path,verification_status) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-        [full_name, email, phone || null, hash, "verified", institute, parseInt(batch), degree, branch, "uploads/" + docFile.filename, "pending"],
+        "INSERT INTO users (full_name,email,phone,password,account_type,user_subtype,institute,batch,degree,branch,document_path,verification_status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        [full_name, email, phone || null, hash, "verified", userSubtype, institute, parseInt(batch), degree, branch, "uploads/" + docFile.filename, "pending"],
         (err) => {
           if (err) {
             if (err.code === "ER_DUP_ENTRY") {
@@ -130,6 +131,7 @@ router.post("/login", (req, res) => {
           full_name: user.full_name,
           email: user.email,
           account_type: user.account_type,
+          user_subtype: user.user_subtype,
           institute: user.institute,
           batch: user.batch,
           degree: user.degree,

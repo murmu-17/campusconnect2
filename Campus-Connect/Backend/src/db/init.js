@@ -22,7 +22,16 @@ function initDB() {
     )`,
     (err) => {
       if (err) console.error("Users table:", err.message);
-      else console.log("Users table ready");
+      else {
+        console.log("Users table ready");
+        db.query(
+          "ALTER TABLE users ADD COLUMN IF NOT EXISTS user_subtype ENUM('student','alumni') DEFAULT NULL AFTER account_type",
+          (alterErr) => {
+            if (alterErr) console.error("Users subtype column:", alterErr.message);
+            else console.log("Users subtype column ready");
+          }
+        );
+      }
     }
   );
 
